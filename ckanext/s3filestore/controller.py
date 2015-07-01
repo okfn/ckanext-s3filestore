@@ -1,6 +1,6 @@
-import requests
 import mimetypes
 import paste.fileapp
+import pylons.config as config
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -39,23 +39,22 @@ class S3Controller(base.BaseController):
 
         if rsc.get('url_type') == 'upload':
             upload = uploader.get_uploader(rsc)
-            try:
-                file_url = upload.get_url(rsc['id'])
-            except logic.NotFound:
-                abort(404, _('Resource not found'))
+            bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
+            bucket = upload.get_s3_bucket(bucket_name)
+
+            key_path = upload.get_path(rsc['id'])
 
             try:
-                r = requests.get(file_url, stream=True)
+                key = bucket.get_key(key_path)
             except Exception as e:
                 raise e
-            else:
-                if r.status_code == 403:
-                    # A forbidden response at this stage is possibly because
-                    # the resource doesn't exist at the file url.
-                    abort(404, _('Resource data not found'))
-                dataapp = paste.fileapp.DataApp(r.content)
-            finally:
-                r.close()
+
+            if key is None:
+                abort(404, _('Resource data not found'))
+            contents = key.get_contents_as_string()
+            key.close()
+
+            dataapp = paste.fileapp.DataApp(contents)
 
             try:
                 status, headers, app_iter = request.call_application(dataapp)
@@ -67,7 +66,6 @@ class S3Controller(base.BaseController):
             content_type, x = mimetypes.guess_type(rsc.get('url', ''))
             if content_type:
                 response.headers['Content-Type'] = content_type
-            log.info(response.headers)
             return app_iter
 
         elif 'url' not in rsc:

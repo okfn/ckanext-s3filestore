@@ -2,7 +2,6 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 import ckanext.s3filestore.uploader
-import ckanext.s3filestore.model
 
 
 class S3FileStorePlugin(plugins.SingletonPlugin):
@@ -19,7 +18,6 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
     # IConfigurable
 
     def configure(self, config):
-        ckanext.s3filestore.model.model_setup()
         # Certain config options must exists for the plugin to work. Raise an
         # exception if they're missing.
         missing_config = "{0} is not configured. Please amend your .ini file."

@@ -9,8 +9,6 @@ import ckan.model as model
 import ckan.lib.munge as munge
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.s3filestore.model import FilestoreUrlMap
-
 
 config = pylons.config
 log = logging.getLogger(__name__)
@@ -40,25 +38,8 @@ class S3Uploader(object):
             path = ''
         self.storage_path = os.path.join(path, 'resources')
 
-        p_key = config.get('ckanext.s3filestore.aws_access_key_id')
-        s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
         self.bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
-
-        # make s3 connection
-        S3_conn = boto.connect_s3(p_key, s_key)
-
-        # make sure bucket exists
-        self.bucket = S3_conn.lookup(self.bucket_name)
-        if self.bucket is None:
-            try:
-                self.bucket = S3_conn.create_bucket(self.bucket_name)
-            except boto.exception.S3CreateError as e:
-                raise e
-
-        # check if the parent dataset is private
-        pkg_dict = toolkit.get_action('package_show')(data_dict={'id':
-                                                      resource['package_id']})
-        self.is_private = pkg_dict['private']
+        self.bucket = self.get_s3_bucket(self.bucket_name)
 
         self.filename = None
 
@@ -81,20 +62,36 @@ class S3Uploader(object):
         directory = os.path.join(self.storage_path, id)
         return directory
 
-    def get_path(self, id, name):
+    def get_path(self, id):
+        '''Return the key used for this resource in S3.
+
+        Keys are in the form:
+        <site_id>-<app_instance_uuid>/resources/<resource id>/<filename with extension>
+
+        e.g.:
+        my_ckan_site-d4cc1a3f-3e02-4fe9-ac74-10ff2e952f32/resources/165900ba-3c60-43c5-9e9c-9f8acd0aa93f/data.csv
+        '''
+        resource = model.Resource.get(id)
         directory = self.get_directory(id)
-        filepath = os.path.join(directory, name)
+        filepath = os.path.join(directory, resource.url)
         return filepath
 
-    def get_url(self, id):
-        '''Return the url mapped to the passed id from the filestore_url_map
-        table.'''
+    def get_s3_bucket(self, bucket_name):
+        '''Return a boto bucket, creating it if it doesn't exist.'''
+        p_key = config.get('ckanext.s3filestore.aws_access_key_id')
+        s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
 
-        filestore_url_map = FilestoreUrlMap.get(id=id)
-        if filestore_url_map is None:
-            raise toolkit.ObjectNotFound("FilestoreUrlMap for id {0} not found".format(id))
+        # make s3 connection
+        S3_conn = boto.connect_s3(p_key, s_key)
 
-        return filestore_url_map.url
+        # make sure bucket exists
+        bucket = S3_conn.lookup(bucket_name)
+        if bucket is None:
+            try:
+                bucket = S3_conn.create_bucket(bucket_name)
+            except boto.exception.S3CreateError as e:
+                raise e
+        return bucket
 
     def upload(self, id, max_size=10):
         '''Upload the file to S3, and map the resource id to the S3 url.'''
@@ -102,26 +99,16 @@ class S3Uploader(object):
         # If a filename has been provided (a file is being uploaded) write the
         # file to the appropriate key in the AWS bucket.
         if self.filename:
-            filepath = self.get_path(id, self.filename)
+            filepath = self.get_path(id)
             self.upload_file.seek(0)
             k = boto.s3.key.Key(self.bucket)
             try:
                 k.key = filepath
                 k.set_contents_from_file(self.upload_file)
-                if not self.is_private:
-                    k.make_public()
             except Exception as e:
                 raise e
-            else:
-                # add aws url to filestore url mapper table
-                url = "https://{0}.s3.amazonaws.com/{1}". \
-                    format(self.bucket_name, filepath)
-                filestore_url_map, _ = FilestoreUrlMap.get_or_create(id=id)
-                filestore_url_map.url = url
-                filestore_url_map.save()
             finally:
                 k.close()
-
             return
 
         # The resource form only sets self.clear (via the input clear_upload)
@@ -137,9 +124,5 @@ class S3Uploader(object):
                 k.delete()
             except Exception as e:
                 raise e
-            else:
-                # Delete the filestore url map entry for this resource id
-                filestore_url_map = FilestoreUrlMap.get(id=id)
-                filestore_url_map.delete()
             finally:
                 k.close()
