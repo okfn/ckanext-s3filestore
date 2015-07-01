@@ -75,7 +75,6 @@ class S3Uploader(object):
             old_resource = model.Session.query(model.Resource) \
                 .get(resource['id'])
             self.key = old_resource.url
-            log.info(self.key)
             resource['url_type'] = ''
 
     def get_directory(self, id):
@@ -86,6 +85,16 @@ class S3Uploader(object):
         directory = self.get_directory(id)
         filepath = os.path.join(directory, name)
         return filepath
+
+    def get_url(self, id):
+        '''Return the url mapped to the passed id from the filestore_url_map
+        table.'''
+
+        filestore_url_map = FilestoreUrlMap.get(id=id)
+        if filestore_url_map is None:
+            raise toolkit.ObjectNotFound("FilestoreUrlMap for id {0} not found".format(id))
+
+        return filestore_url_map.url
 
     def upload(self, id, max_size=10):
         '''Upload the file to S3, and map the resource id to the S3 url.'''

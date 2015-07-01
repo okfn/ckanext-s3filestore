@@ -9,6 +9,7 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigurable)
     plugins.implements(plugins.IUploader)
+    plugins.implements(plugins.IRoutes, inherit=True)
 
     # IConfigurer
 
@@ -36,3 +37,18 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
     def get_uploader(self, data_dict):
         '''Return an uploader object used to upload files.'''
         return ckanext.s3filestore.uploader.S3Uploader(data_dict)
+
+    # IRoutes
+
+    def before_map(self, map):
+        map.connect('resource_download',
+                    '/dataset/{id}/resource/{resource_id}/download',
+                    controller='ckanext.s3filestore.controller:S3Controller',
+                    action='resource_download')
+
+        map.connect('resource_download',
+                    '/dataset/{id}/resource/{resource_id}/download/{filename}',
+                    controller='ckanext.s3filestore.controller:S3Controller',
+                    action='resource_download')
+
+        return map
