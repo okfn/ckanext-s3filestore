@@ -8,33 +8,13 @@
 .. image:: https://coveralls.io/repos/okfn/ckanext-s3filestore/badge.png?branch=master
   :target: https://coveralls.io/r/okfn/ckanext-s3filestore?branch=master
 
-.. image:: https://pypip.in/download/ckanext-s3filestore/badge.svg
-    :target: https://pypi.python.org/pypi//ckanext-s3filestore/
-    :alt: Downloads
 
-.. image:: https://pypip.in/version/ckanext-s3filestore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-s3filestore/
-    :alt: Latest Version
-
-.. image:: https://pypip.in/py_versions/ckanext-s3filestore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-s3filestore/
-    :alt: Supported Python versions
-
-.. image:: https://pypip.in/status/ckanext-s3filestore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-s3filestore/
-    :alt: Development Status
-
-.. image:: https://pypip.in/license/ckanext-s3filestore/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-s3filestore/
-    :alt: License
-
-=============
+===================
 ckanext-s3filestore
-=============
+===================
 
 .. Put a description of your extension here:
-   What does it do? What features does it have?
-   Consider including some screenshots or embedding a video!
+   Use Amazon S3 as a filestore for resources.
 
 
 ------------
@@ -76,11 +56,13 @@ To install ckanext-s3filestore:
 Config Settings
 ---------------
 
-Document any optional config settings here. For example::
+    # These need to be set
+    ckanext.s3filestore.aws_access_key_id = Your-AWS-Access-Key-ID
+    ckanext.s3filestore.aws_secret_access_key = Your-AWS-Secret-Access-Key
+    ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
 
-    # The minimum number of hours to wait before re-checking a resource
-    # (optional, default: 24).
-    ckanext.s3filestore.some_setting = some_default_value
+    # An optional path to prepend to keys
+    ckanext.s3filestore.aws_storage_path = my-site-name
 
 
 ------------------------
@@ -94,6 +76,7 @@ do::
     cd ckanext-s3filestore
     python setup.py develop
     pip install -r dev-requirements.txt
+    pip install -r requirements.txt
 
 
 -----------------
@@ -110,9 +93,9 @@ coverage installed in your virtualenv (``pip install coverage``) then run::
     nosetests --ckan --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.s3filestore --cover-inclusive --cover-erase --cover-tests
 
 
----------------------------------
+---------------------------------------
 Registering ckanext-s3filestore on PyPI
----------------------------------
+---------------------------------------
 
 ckanext-s3filestore should be availabe on PyPI as
 https://pypi.python.org/pypi/ckanext-s3filestore. If that link doesn't work, then
@@ -139,9 +122,9 @@ steps:
        git push --tags
 
 
-----------------------------------------
+----------------------------------------------
 Releasing a New Version of ckanext-s3filestore
-----------------------------------------
+----------------------------------------------
 
 ckanext-s3filestore is availabe on PyPI as https://pypi.python.org/pypi/ckanext-s3filestore.
 To publish a new version to PyPI follow these steps:
