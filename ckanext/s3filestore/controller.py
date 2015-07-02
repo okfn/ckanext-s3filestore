@@ -44,7 +44,8 @@ class S3Controller(base.BaseController):
             bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
             bucket = upload.get_s3_bucket(bucket_name)
 
-            key_path = upload.get_path(rsc['id'])
+            filename = model.Resource.get(resource_id).url
+            key_path = upload.get_path(rsc['id'], filename)
 
             try:
                 key = bucket.get_key(key_path)
