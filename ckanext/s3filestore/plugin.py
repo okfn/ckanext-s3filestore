@@ -32,9 +32,9 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
 
     # IUploader
 
-    def get_uploader(self, data_dict):
+    def get_resource_uploader(self, data_dict):
         '''Return an uploader object used to upload files.'''
-        return ckanext.s3filestore.uploader.S3Uploader(data_dict)
+        return ckanext.s3filestore.uploader.S3ResourceUploader(data_dict)
 
     # IRoutes
 

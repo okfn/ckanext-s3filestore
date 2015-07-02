@@ -38,7 +38,7 @@ class S3Controller(base.BaseController):
             abort(401, _('Unauthorized to read resource %s') % id)
 
         if rsc.get('url_type') == 'upload':
-            upload = uploader.get_uploader(rsc)
+            upload = uploader.get_resource_uploader(rsc)
             bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
             bucket = upload.get_s3_bucket(bucket_name)
 

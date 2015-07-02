@@ -7,7 +7,6 @@ import boto
 
 import ckan.model as model
 import ckan.lib.munge as munge
-import ckan.plugins.toolkit as toolkit
 
 
 config = pylons.config
@@ -29,7 +28,13 @@ def get_storage_path():
     return _storage_path
 
 
-class S3Uploader(object):
+class S3ResourceUploader(object):
+
+    '''
+    A replacement uploader class to replace local resource file storage
+    with Amazon Web Services S3.
+    '''
+
     def __init__(self, resource):
         '''resource dict must contain ``url`` or ``clear_upload``.'''
 
