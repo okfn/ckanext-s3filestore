@@ -66,6 +66,41 @@ class TestS3Uploader(helpers.FunctionalTestBase):
         # test the key exists
         assert_true(bucket.lookup(key))
 
+    @mock_s3
+    def test_group_image_upload_then_clear(self):
+        '''Test that clearing an upload removes the S3 key'''
+
+        sysadmin = factories.Sysadmin(apikey="my-test-key")
+
+        file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
+
+        img_uploader = Uploader("somename.png", file=open(file_path))
+
+        with mock.patch('ckanext.s3filestore.uploader.datetime') as mock_date:
+            mock_date.datetime.utcnow.return_value = \
+                datetime.datetime(2001, 1, 29)
+            context = {'user': sysadmin['name']}
+            helpers.call_action('group_create', context=context,
+                                name="my-group",
+                                image_upload=img_uploader,
+                                image_url="somename.png")
+
+        key = '{0}/storage/uploads/group/2001-01-29-000000somename.png' \
+            .format(config.get('ckanext.s3filestore.aws_storage_path'))
+
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket('my-bucket')
+        # test the key exists
+        assert_true(bucket.lookup(key))
+
+        # clear upload
+        helpers.call_action('group_update', context=context,
+                            id='my-group', name='my-group',
+                            image_url="http://asdf", clear_upload=True)
+
+        # key shouldn't exist
+        assert_false(bucket.lookup(key))
+
 
 class TestS3ResourceUploader(helpers.FunctionalTestBase):
 
