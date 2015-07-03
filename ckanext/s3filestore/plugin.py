@@ -1,3 +1,4 @@
+from routes.mapper import SubMapper
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
@@ -44,20 +45,22 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
     # IRoutes
 
     def before_map(self, map):
-        # Override the resource download links
-        map.connect('resource_download',
-                    '/dataset/{id}/resource/{resource_id}/download',
-                    controller='ckanext.s3filestore.controller:S3Controller',
-                    action='resource_download')
+        with SubMapper(map, controller='ckanext.s3filestore.controller:S3Controller') as m:
+            # Override the resource download links
+            m.connect('resource_download',
+                      '/dataset/{id}/resource/{resource_id}/download',
+                      action='resource_download')
+            m.connect('resource_download',
+                      '/dataset/{id}/resource/{resource_id}/download/{filename}',
+                      action='resource_download')
 
-        map.connect('resource_download',
-                    '/dataset/{id}/resource/{resource_id}/download/{filename}',
-                    controller='ckanext.s3filestore.controller:S3Controller',
-                    action='resource_download')
+            # fallback controller action to download from the filesystem
+            m.connect('filesystem_resource_download',
+                      '/dataset/{id}/resource/{resource_id}/fs_download/{filename}',
+                      action='filesystem_resource_download')
 
-        # Intercept the group image links
-        map.connect('group_image', '/uploads/group/{filename}',
-                    controller='ckanext.s3filestore.controller:S3Controller',
-                    action='group_image_redirect')
+            # Intercept the group image links
+            m.connect('group_image', '/uploads/group/{filename}',
+                      action='group_image_redirect')
 
         return map

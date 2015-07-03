@@ -3,6 +3,7 @@ import mimetypes
 import paste.fileapp
 import pylons.config as config
 
+import ckan.plugins.toolkit as toolkit
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.model as model
@@ -54,6 +55,21 @@ class S3Controller(base.BaseController):
                 raise e
 
             if key is None:
+                log.warn('Key \'{0}\' not found in bucket \'{1}\''
+                         .format(key_path, bucket_name))
+
+                # attempt fallback
+                if config.get('ckanext.s3filestore.filesystem_download_fallback',
+                              False):
+                    log.info('Attempting filesystem fallback for resource {0}'
+                             .format(resource_id))
+                    url = toolkit.url_for(controller='ckanext.s3filestore.controller:S3Controller',
+                                          action='filesystem_resource_download',
+                                          id=id,
+                                          resource_id=resource_id,
+                                          filename=filename)
+                    redirect(url)
+
                 abort(404, _('Resource data not found'))
             contents = key.get_contents_as_string()
             key.close()
@@ -72,6 +88,45 @@ class S3Controller(base.BaseController):
                 response.headers['Content-Type'] = content_type
             return app_iter
 
+        elif 'url' not in rsc:
+            abort(404, _('No download is available'))
+        redirect(rsc['url'])
+
+    def filesystem_resource_download(self, id, resource_id, filename=None):
+        """
+        A fallback controller action to download resources from the
+        filesystem. A copy of the action from
+        `ckan.controllers.package:PackageController.resource_download`.
+
+        Provide a direct download by either redirecting the user to the url
+        stored or downloading an uploaded file directly.
+        """
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+
+        try:
+            rsc = get_action('resource_show')(context, {'id': resource_id})
+            get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        if rsc.get('url_type') == 'upload':
+            upload = uploader.ResourceUpload(rsc)
+            filepath = upload.get_path(rsc['id'])
+            fileapp = paste.fileapp.FileApp(filepath)
+            try:
+                status, headers, app_iter = request.call_application(fileapp)
+            except OSError:
+                abort(404, _('Resource data not found'))
+            response.headers.update(dict(headers))
+            content_type, content_enc = mimetypes.guess_type(rsc.get('url',
+                                                                     ''))
+            if content_type:
+                response.headers['Content-Type'] = content_type
+            response.status = status
+            return app_iter
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])

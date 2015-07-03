@@ -64,6 +64,9 @@ Config Settings
     # An optional path to prepend to keys
     ckanext.s3filestore.aws_storage_path = my-site-name
 
+    # An optional setting to fallback to filesystem for downloads
+    ckanext.s3filestore.filesystem_download_fallback = true
+
 
 ------------------------
 Development Installation
