@@ -62,7 +62,6 @@ class BaseS3Uploader(object):
         except Exception as e:
             raise e
         finally:
-            log.info(k)
             k.close()
 
     def clear_key(self, filepath):
@@ -129,7 +128,7 @@ class S3Uploader(BaseS3Uploader):
         if not self.storage_path:
             return
 
-        if isinstance(self.upload_field_storage, cgi.FieldStorage):
+        if hasattr(self.upload_field_storage, 'filename'):
             self.filename = self.upload_field_storage.filename
             self.filename = str(datetime.datetime.utcnow()) + self.filename
             self.filename = munge.munge_filename_legacy(self.filename)

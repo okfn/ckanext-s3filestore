@@ -1,5 +1,7 @@
+import datetime
 import os
 
+import mock
 from nose.tools import (assert_equal,
                         assert_true,
                         assert_false)
@@ -8,17 +10,68 @@ import ckanapi
 import pylons.config as config
 import boto
 from moto import mock_s3
+from webtest import Upload
 
 import ckan.plugins.toolkit as toolkit
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+
+from ckanext.s3filestore.uploader import (S3Uploader,
+                                          S3ResourceUploader)
+
+
+class Uploader(Upload):
+
+    '''
+    Extend webtest's Upload class a bit more so it actually stores file data.
+    '''
+
+    def __init__(self, *args, **kwargs):
+        self.file = kwargs.pop('file')
+        super(Uploader, self).__init__(*args, **kwargs)
+
+
+class TestS3Uploader(helpers.FunctionalTestBase):
+
+    @mock_s3
+    def test_uploader_storage_path(self):
+        '''S3Uploader get_storage_path returns as expected'''
+        returned_path = S3Uploader.get_storage_path('myfiles')
+        assert_equal(returned_path, 'my-path/storage/uploads/myfiles')
+
+    @mock_s3
+    def test_group_image_upload(self):
+        '''Test a group image file upload'''
+        sysadmin = factories.Sysadmin(apikey="my-test-key")
+
+        file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
+
+        img_uploader = Uploader("somename.png", file=open(file_path))
+
+        with mock.patch('ckanext.s3filestore.uploader.datetime') as mock_date:
+            mock_date.datetime.utcnow.return_value = \
+                datetime.datetime(2001, 1, 29)
+            context = {'user': sysadmin['name']}
+            helpers.call_action('group_create', context=context,
+                                name="my-group",
+                                image_upload=img_uploader,
+                                image_url="somename.png",
+                                save='save')
+
+        key = '{0}/storage/uploads/group/2001-01-29-000000somename.png' \
+            .format(config.get('ckanext.s3filestore.aws_storage_path'))
+
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket('my-bucket')
+        # test the key exists
+        assert_true(bucket.lookup(key))
 
 
 class TestS3ResourceUploader(helpers.FunctionalTestBase):
 
     @mock_s3
     def test_resource_upload(self):
-        '''Tests a basic resource file upload'''
+        '''Test a basic resource file upload'''
         factories.Sysadmin(apikey="my-test-key")
 
         app = self._get_test_app()
@@ -76,3 +129,14 @@ class TestS3ResourceUploader(helpers.FunctionalTestBase):
 
         # key shouldn't exist
         assert_false(bucket.lookup(key))
+
+    @mock_s3
+    def test_uploader_get_path(self):
+        '''Uploader get_path returns as expected'''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        uploader = S3ResourceUploader(resource)
+        returned_path = uploader.get_path(resource['id'], 'myfile.txt')
+        assert_equal(returned_path,
+                     'my-path/resources/{0}/myfile.txt'.format(resource['id']))
