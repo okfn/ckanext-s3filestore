@@ -5,8 +5,9 @@
 .. image:: https://travis-ci.org/okfn/ckanext-s3filestore.svg?branch=master
     :target: https://travis-ci.org/okfn/ckanext-s3filestore
 
-.. image:: https://coveralls.io/repos/okfn/ckanext-s3filestore/badge.png?branch=master
-  :target: https://coveralls.io/r/okfn/ckanext-s3filestore?branch=master
+
+.. image:: https://coveralls.io/repos/ckan/ckanext-s3archive/badge.svg
+  :target: https://coveralls.io/r/ckan/ckanext-s3archive
 
 
 ===================
