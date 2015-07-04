@@ -1,18 +1,14 @@
 import os
 
 from nose.tools import (assert_equal,
-                        assert_true,
-                        assert_false)
+                        assert_true)
 
-import ckan.plugins.toolkit as toolkit
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 import ckanapi
 import boto
 from moto import mock_s3
-
-from ckanext.s3filestore.uploader import S3ResourceUploader
 
 
 class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
@@ -95,7 +91,3 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         # attempt redirect to linked url
         r = app.get(resource_file_url, status=[302, 301])
         assert_equal(r.location, 'http://example')
-
-
-class TestS3ControllerGroupImageDownload(helpers.FunctionalTestBase):
-    pass
