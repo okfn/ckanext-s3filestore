@@ -15,15 +15,18 @@ ckanext-s3filestore
 ===================
 
 .. Put a description of your extension here:
-   Use Amazon S3 as a filestore for resources.
+
+Use Amazon S3 as a filestore for resources.
 
 
 ------------
 Requirements
 ------------
 
-For example, you might want to mention here which versions of CKAN this
-extension works with.
+Status: Alpha
+
+Requires the CKAN development branch, `2510-iuploader-interface <https://github.com/ckan/ckan/tree/2510-iuploader-interface>`_
+.
 
 
 ------------
@@ -57,16 +60,21 @@ To install ckanext-s3filestore:
 Config Settings
 ---------------
 
-    # These need to be set
+Required::
+
     ckanext.s3filestore.aws_access_key_id = Your-AWS-Access-Key-ID
     ckanext.s3filestore.aws_secret_access_key = Your-AWS-Secret-Access-Key
     ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
+
+Optional::
 
     # An optional path to prepend to keys
     ckanext.s3filestore.aws_storage_path = my-site-name
 
     # An optional setting to fallback to filesystem for downloads
     ckanext.s3filestore.filesystem_download_fallback = true
+    # The ckan storage path option must also be set correctly for the fallback to work
+    ckan.storage_path = path/to/storage/directory
 
 
 ------------------------
