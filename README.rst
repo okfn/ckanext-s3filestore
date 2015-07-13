@@ -109,7 +109,7 @@ coverage installed in your virtualenv (``pip install coverage``) then run::
 Registering ckanext-s3filestore on PyPI
 ---------------------------------------
 
-ckanext-s3filestore should be availabe on PyPI as
+ckanext-s3filestore should be available on PyPI as
 https://pypi.python.org/pypi/ckanext-s3filestore. If that link doesn't work, then
 you can register the project on PyPI for the first time by following these
 steps:
@@ -138,7 +138,7 @@ steps:
 Releasing a New Version of ckanext-s3filestore
 ----------------------------------------------
 
-ckanext-s3filestore is availabe on PyPI as https://pypi.python.org/pypi/ckanext-s3filestore.
+ckanext-s3filestore is available on PyPI as https://pypi.python.org/pypi/ckanext-s3filestore.
 To publish a new version to PyPI follow these steps:
 
 1. Update the version number in the ``setup.py`` file.
