@@ -79,5 +79,8 @@ setup(
     entry_points='''
         [ckan.plugins]
         s3filestore=ckanext.s3filestore.plugin:S3FileStorePlugin
+        [paste.paster_command]
+        s3=ckanext.s3filestore.commands:TestConnection
+
     ''',
 )
