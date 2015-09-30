@@ -32,7 +32,11 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
                 raise RuntimeError(missing_config.format(option))
 
         # Check that options actually work, if not exceptions will be raised
-        ckanext.s3filestore.uploader.BaseS3Uploader().get_s3_bucket()
+        if toolkit.asbool(
+                config.get('ckanext.s3filestore.check_access_on_startup',
+                           True)):
+            ckanext.s3filestore.uploader.BaseS3Uploader().get_s3_bucket(
+                config.get('ckanext.s3filestore.aws_bucket_name'))
 
     # IUploader
 
