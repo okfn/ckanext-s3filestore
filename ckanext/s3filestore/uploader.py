@@ -19,6 +19,9 @@ _max_resource_size = None
 _max_image_size = None
 
 
+class S3FileStoreException(Exception):
+    pass
+
 class BaseS3Uploader(object):
 
     def __init__(self):
@@ -37,13 +40,26 @@ class BaseS3Uploader(object):
         # make s3 connection
         S3_conn = boto.connect_s3(p_key, s_key)
 
-        # make sure bucket exists
-        bucket = S3_conn.lookup(bucket_name)
-        if bucket is None:
-            try:
-                bucket = S3_conn.create_bucket(bucket_name)
-            except boto.exception.S3CreateError as e:
-                raise e
+        # make sure bucket exists and that we can access
+        try:
+            bucket = S3_conn.get_bucket(bucket_name)
+        except boto.exception.S3ResponseError as e:
+            if e.status == 404:
+                log.warning('Bucket {0} could not be found, ' +
+                            'attempting to create it...'.format(bucket_name))
+                try:
+                    bucket = S3_conn.create_bucket(bucket_name)
+                except (boto.exception.S3CreateError,
+                        boto.exception.S3ResponseError) as e:
+                    raise S3FileStoreException(
+                        'Could not create bucket {0}: {1}'.format(bucket_name,
+                                                                  str(e)))
+            elif e.status == 403:
+                raise S3FileStoreException(
+                    'Access to bucket {0} denied'.format(bucket_name))
+            else:
+                raise
+
         return bucket
 
     def upload_to_key(self, filepath, upload_file, make_public=False):

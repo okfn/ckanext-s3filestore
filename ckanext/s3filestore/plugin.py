@@ -31,6 +31,9 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
             if not config.get(option, None):
                 raise RuntimeError(missing_config.format(option))
 
+        # Check that options actually work, if not exceptions will be raised
+        ckanext.s3filestore.uploader.BaseS3Uploader().get_s3_bucket()
+
     # IUploader
 
     def get_resource_uploader(self, data_dict):
