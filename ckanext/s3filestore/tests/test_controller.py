@@ -2,6 +2,7 @@ import os
 
 from nose.tools import (assert_equal,
                         assert_true)
+import pylons.config as config
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -9,6 +10,9 @@ import ckan.tests.factories as factories
 import ckanapi
 import boto
 from moto import mock_s3
+
+import logging
+log = logging.getLogger(__name__)
 
 
 class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
@@ -35,8 +39,9 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         # does resource_show have the expected resource file url?
         resource_show = demo.action.resource_show(id=resource['id'])
 
-        expected_url = 'http://test.ckan.net/dataset/{0}/resource/{1}/download/data.csv' \
-            .format(resource['package_id'], resource['id'])
+        site_url = config.get('ckan.site_url', '').strip()
+        expected_url = '{2}/dataset/{0}/resource/{1}/download/data.csv' \
+            .format(resource['package_id'], resource['id'], site_url)
 
         assert_equal(resource_show['url'], expected_url)
 
@@ -60,7 +65,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
 
         resource, demo, app = self._upload_resource()
 
-        resource_file_url = 'http://localhost:80/dataset/{0}/resource/{1}/download' \
+        resource_file_url = '/dataset/{0}/resource/{1}/download' \
             .format(resource['package_id'], resource['id'])
 
         file_response = app.get(resource_file_url)
@@ -80,7 +85,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         resource = demo.action.resource_create(package_id=dataset['id'],
                                                url='http://example')
         resource_show = demo.action.resource_show(id=resource['id'])
-        resource_file_url = 'http://localhost:80/dataset/{0}/resource/{1}/download' \
+        resource_file_url = '/dataset/{0}/resource/{1}/download' \
             .format(resource['package_id'], resource['id'])
         assert_equal(resource_show['url'], 'http://example')
 

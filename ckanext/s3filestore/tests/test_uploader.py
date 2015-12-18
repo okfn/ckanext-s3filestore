@@ -70,7 +70,7 @@ class TestS3Uploader(helpers.FunctionalTestBase):
         # requesting image redirects to s3
         app = self._get_test_app()
         # attempt redirect to linked url
-        image_file_url = 'http://localhost:80/uploads/group/{0}'.format(file_name)
+        image_file_url = '/uploads/group/{0}'.format(file_name)
         r = app.get(image_file_url, status=[302, 301])
         assert_equal(r.location, 'https://my-bucket.s3.amazonaws.com/my-path/storage/uploads/group/{0}'
                                  .format(file_name))
