@@ -35,7 +35,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         # does resource_show have the expected resource file url?
         resource_show = demo.action.resource_show(id=resource['id'])
 
-        expected_url = 'http://localhost:80/dataset/{0}/resource/{1}/download/data.csv' \
+        expected_url = 'http://test.ckan.net/dataset/{0}/resource/{1}/download/data.csv' \
             .format(resource['package_id'], resource['id'])
 
         assert_equal(resource_show['url'], expected_url)
