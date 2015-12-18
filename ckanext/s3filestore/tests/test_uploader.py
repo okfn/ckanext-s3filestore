@@ -45,8 +45,9 @@ class TestS3Uploader(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin(apikey="my-test-key")
 
         file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
+        file_name = 'somename.png'
 
-        img_uploader = Uploader("somename.png", file=open(file_path))
+        img_uploader = Uploader(file_name, file=open(file_path))
 
         with mock.patch('ckanext.s3filestore.uploader.datetime') as mock_date:
             mock_date.datetime.utcnow.return_value = \
@@ -55,16 +56,24 @@ class TestS3Uploader(helpers.FunctionalTestBase):
             helpers.call_action('group_create', context=context,
                                 name="my-group",
                                 image_upload=img_uploader,
-                                image_url="somename.png",
+                                image_url=file_name,
                                 save='save')
 
-        key = '{0}/storage/uploads/group/2001-01-29-000000somename.png' \
-            .format(config.get('ckanext.s3filestore.aws_storage_path'))
+        key = '{0}/storage/uploads/group/2001-01-29-000000{1}' \
+            .format(config.get('ckanext.s3filestore.aws_storage_path'), file_name)
 
         conn = boto.connect_s3()
         bucket = conn.get_bucket('my-bucket')
         # test the key exists
         assert_true(bucket.lookup(key))
+
+        # requesting image redirects to s3
+        app = self._get_test_app()
+        # attempt redirect to linked url
+        image_file_url = 'http://localhost:80/uploads/group/{0}'.format(file_name)
+        r = app.get(image_file_url, status=[302, 301])
+        assert_equal(r.location, 'https://my-bucket.s3.amazonaws.com/my-path/storage/uploads/group/{0}'
+                                 .format(file_name))
 
     @mock_s3
     def test_group_image_upload_then_clear(self):
@@ -73,8 +82,9 @@ class TestS3Uploader(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin(apikey="my-test-key")
 
         file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
+        file_name = "somename.png"
 
-        img_uploader = Uploader("somename.png", file=open(file_path))
+        img_uploader = Uploader(file_name, file=open(file_path))
 
         with mock.patch('ckanext.s3filestore.uploader.datetime') as mock_date:
             mock_date.datetime.utcnow.return_value = \
@@ -83,10 +93,10 @@ class TestS3Uploader(helpers.FunctionalTestBase):
             helpers.call_action('group_create', context=context,
                                 name="my-group",
                                 image_upload=img_uploader,
-                                image_url="somename.png")
+                                image_url=file_name)
 
-        key = '{0}/storage/uploads/group/2001-01-29-000000somename.png' \
-            .format(config.get('ckanext.s3filestore.aws_storage_path'))
+        key = '{0}/storage/uploads/group/2001-01-29-000000{1}' \
+            .format(config.get('ckanext.s3filestore.aws_storage_path'), file_name)
 
         conn = boto.connect_s3()
         bucket = conn.get_bucket('my-bucket')

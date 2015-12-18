@@ -66,8 +66,8 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
                       '/dataset/{id}/resource/{resource_id}/fs_download/{filename}',
                       action='filesystem_resource_download')
 
-            # Intercept the group image links
-            m.connect('group_image', '/uploads/group/{filename}',
-                      action='group_image_redirect')
+            # Intercept the uploaded file links (e.g. group images)
+            m.connect('uploaded_file', '/uploads/{upload_to}/{filename}',
+                      action='uploaded_file_redirect')
 
         return map
