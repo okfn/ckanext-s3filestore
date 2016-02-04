@@ -54,7 +54,7 @@ try:
             _id, url, _type = resource.first()
             if _type == 'upload' and url:
                 file_name = url.split('/')[-1] if '/' in url else url
-                resource_ids_and_names[_id] = file_name
+                resource_ids_and_names[_id] = file_name.lower()
 finally:
     connection.close()
     engine.dispose()
