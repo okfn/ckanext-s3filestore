@@ -2,6 +2,7 @@ import os
 
 from nose.tools import (assert_equal,
                         assert_true)
+import pylons.config as config
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -9,6 +10,9 @@ import ckan.tests.factories as factories
 import ckanapi
 import boto
 from moto import mock_s3
+
+import logging
+log = logging.getLogger(__name__)
 
 
 class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
