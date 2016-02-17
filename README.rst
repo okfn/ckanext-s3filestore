@@ -25,8 +25,7 @@ Requirements
 
 Status: Alpha
 
-Requires the CKAN development branch, `2510-iuploader-interface <https://github.com/ckan/ckan/tree/2510-iuploader-interface>`_
-.
+Requires CKAN 2.5+
 
 
 ------------
