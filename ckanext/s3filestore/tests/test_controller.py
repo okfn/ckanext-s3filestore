@@ -27,6 +27,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         return resource, demo, app
 
     @mock_s3
+    @helpers.change_config('ckan.site_url', 'http://mytest.ckan.net')
     def test_resource_show_url(self):
         '''The resource_show url is expected for uploaded resource file.'''
 
@@ -35,7 +36,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         # does resource_show have the expected resource file url?
         resource_show = demo.action.resource_show(id=resource['id'])
 
-        expected_url = 'http://localhost:80/dataset/{0}/resource/{1}/download/data.csv' \
+        expected_url = 'http://mytest.ckan.net/dataset/{0}/resource/{1}/download/data.csv' \
             .format(resource['package_id'], resource['id'])
 
         assert_equal(resource_show['url'], expected_url)
@@ -60,7 +61,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
 
         resource, demo, app = self._upload_resource()
 
-        resource_file_url = 'http://localhost:80/dataset/{0}/resource/{1}/download' \
+        resource_file_url = '/dataset/{0}/resource/{1}/download' \
             .format(resource['package_id'], resource['id'])
 
         file_response = app.get(resource_file_url)
@@ -80,7 +81,7 @@ class TestS3ControllerResourceDownload(helpers.FunctionalTestBase):
         resource = demo.action.resource_create(package_id=dataset['id'],
                                                url='http://example')
         resource_show = demo.action.resource_show(id=resource['id'])
-        resource_file_url = 'http://localhost:80/dataset/{0}/resource/{1}/download' \
+        resource_file_url = '/dataset/{0}/resource/{1}/download' \
             .format(resource['package_id'], resource['id'])
         assert_equal(resource_show['url'], 'http://example')
 
