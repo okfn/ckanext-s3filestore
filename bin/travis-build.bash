@@ -10,12 +10,7 @@ sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java
 echo "Installing CKAN and its Python dependencies..."
 git clone https://github.com/ckan/ckan
 cd ckan
-if [ $CKANVERSION == '2.5.1' ]
-then
-    git checkout release-v2.5.1
-else
-    git checkout master
-fi
+git checkout $CKAN_BRANCH
 python setup.py develop
 pip install -r requirements.txt --allow-all-external
 pip install -r dev-requirements.txt --allow-all-external
