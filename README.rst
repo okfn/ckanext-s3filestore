@@ -23,8 +23,6 @@ Use Amazon S3 as a filestore for resources.
 Requirements
 ------------
 
-Status: Alpha
-
 Requires CKAN 2.5+
 
 
