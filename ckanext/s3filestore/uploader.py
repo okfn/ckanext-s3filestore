@@ -197,8 +197,8 @@ class S3ResourceUploader(BaseS3Uploader):
 
         path = config.get('ckanext.s3filestore.aws_storage_path', '')
         self.storage_path = os.path.join(path, 'resources')
-
         self.filename = None
+        self.old_filename = None
 
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
@@ -209,7 +209,9 @@ class S3ResourceUploader(BaseS3Uploader):
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             self.upload_file = upload_field_storage.file
-        elif self.clear:
+        elif self.clear and resource.get('id'):
+            # New, not yet created resources can be marked for deletion if the
+            # users cancels an upload and enters a URL instead.
             old_resource = model.Session.query(model.Resource) \
                 .get(resource['id'])
             self.old_filename = old_resource.url
@@ -242,6 +244,6 @@ class S3ResourceUploader(BaseS3Uploader):
         # file, only if it is replaced by a link. If the uploaded file is
         # replaced by a link, we should remove the previously uploaded file to
         # clean up the file system.
-        if self.clear:
+        if self.clear and self.old_filename:
             filepath = self.get_path(id, self.old_filename)
             self.clear_key(filepath)

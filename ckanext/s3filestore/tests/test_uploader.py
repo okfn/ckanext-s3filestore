@@ -185,3 +185,21 @@ class TestS3ResourceUploader(helpers.FunctionalTestBase):
         returned_path = uploader.get_path(resource['id'], 'myfile.txt')
         assert_equal(returned_path,
                      'my-path/resources/{0}/myfile.txt'.format(resource['id']))
+
+    @mock_s3
+    def test_resource_upload_with_url_and_clear(self):
+        '''Test that clearing an upload and using a URL does not crash'''
+
+        sysadmin = factories.Sysadmin(apikey="my-test-key")
+
+        app = self._get_test_app()
+        dataset = factories.Dataset(name="my-dataset")
+
+        url = toolkit.url_for(controller='package', action='new_resource',
+                              id=dataset['id'])
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+
+        app.post(url, {'clear_upload': True,
+                       'id': '', # Emtpy id from the form
+                       'url': 'http://asdf', 'save': 'save'},
+                 extra_environ=env)
