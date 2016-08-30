@@ -36,6 +36,9 @@ class S3FileApp(DataApp):
         self.content_length = self.s3_object.content_length
         self.content_encoding = self.s3_object.content_encoding
 
+    def calculate_etag(self):
+        return self.s3_object.e_tag
+
     def get(self, environ, start_response):
         is_head = environ['REQUEST_METHOD'].upper() == 'HEAD'
         if 'max-age=0' in CACHE_CONTROL(environ).lower():
