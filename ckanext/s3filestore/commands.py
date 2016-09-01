@@ -27,7 +27,7 @@ class TestConnection(toolkit.CkanCommand):
 
     def check_config(self):
         exit = False
-        required_keys = ('ckanext.s3filestore.aws_bucket_name')
+        required_keys = ('ckanext.s3filestore.aws_bucket_name',)
         if not config.get('ckanext.s3filestore.aws_use_ami_role'):
             required_keys += ('ckanext.s3filestore.aws_access_key_id',
                          'ckanext.s3filestore.aws_secret_access_key')
