@@ -37,7 +37,7 @@ class BaseS3Uploader(object):
         if not config.get('ckanext.s3filestore.aws_use_ami_role'):
             p_key = config.get('ckanext.s3filestore.aws_access_key_id')
             s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
-        else
+        else:
             p_key, s_key = (None, None)
 
         # make s3 connection
