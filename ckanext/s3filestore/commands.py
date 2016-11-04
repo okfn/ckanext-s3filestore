@@ -27,9 +27,11 @@ class TestConnection(toolkit.CkanCommand):
 
     def check_config(self):
         exit = False
-        for key in ('ckanext.s3filestore.aws_access_key_id',
-                    'ckanext.s3filestore.aws_secret_access_key',
-                    'ckanext.s3filestore.aws_bucket_name'):
+        required_keys = ('ckanext.s3filestore.aws_bucket_name',)
+        if not config.get('ckanext.s3filestore.aws_use_ami_role'):
+            required_keys += ('ckanext.s3filestore.aws_access_key_id',
+                         'ckanext.s3filestore.aws_secret_access_key')
+        for key in required_keys:
             if not config.get(key):
                 print 'You must set the "{0}" option in your ini file'.format(
                     key)
