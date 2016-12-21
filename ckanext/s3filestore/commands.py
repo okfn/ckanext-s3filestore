@@ -1,5 +1,5 @@
 import sys
-import boto
+import boto3, botocore
 from pylons import config
 from ckan.plugins import toolkit
 
@@ -41,18 +41,20 @@ class TestConnection(toolkit.CkanCommand):
         bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
         public_key = config.get('ckanext.s3filestore.aws_access_key_id')
         secret_key = config.get('ckanext.s3filestore.aws_secret_access_key')
+        region = config.get('ckanext.s3filestore.region_name')
 
-        S3_conn = boto.connect_s3(public_key, secret_key)
+        S3_conn = boto3.resource('s3')
 
         # Check if bucket exists
-        bucket = S3_conn.lookup(bucket_name)
+        bucket = S3_conn.Bucket(bucket_name)
         if bucket is None:
             print 'Bucket {0} does not exist, trying to create it...'.format(
                 bucket_name)
             try:
-                bucket = S3_conn.create_bucket(bucket_name)
-            except boto.exception.StandardError as e:
+                bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
+                    'LocationConstraint': region_name})
+            except botocore.exception.ClientError as e:
                 print 'An error was found while creating the bucket:'
-                print str(e)
+                print int(e.response['Error']['Code'])
                 sys.exit(1)
         print 'Configuration OK!'

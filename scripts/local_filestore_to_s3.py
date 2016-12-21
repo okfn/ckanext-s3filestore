@@ -14,8 +14,7 @@ AWS_STORAGE_PATH.
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
+import boto3
 
 
 # Configuration
@@ -62,9 +61,11 @@ finally:
 print '{0} resources matched on the database'.format(
     len(resource_ids_and_names.keys()))
 
-s3_connection = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-bucket = s3_connection.get_bucket(AWS_BUCKET_NAME)
-k = Key(bucket)
+s3_connection = boto3.client('s3',
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+bucket = s3_connection.Bucket(AWS_BUCKET_NAME)
+k = bucket.key
 
 uploaded_resources = []
 for resource_id, file_name in resource_ids_and_names.iteritems():
