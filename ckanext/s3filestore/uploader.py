@@ -76,7 +76,7 @@ class BaseS3Uploader(object):
 
         s3 = boto3.resource('s3')
         try:
-            obj = self.bucket.put_object(Body=open(filepath, 'rb'))
+            obj = self.bucket.put_object(Body=open(upload_file, 'rb'))
             self.bucket.set_acl('public-read')
         except Exception as e:
             raise e
