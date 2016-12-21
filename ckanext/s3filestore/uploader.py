@@ -66,7 +66,7 @@ class BaseS3Uploader(object):
 
         return bucket
 
-    def upload_to_key(self, filepath, upload_file, make_public=False):
+    def upload_to_key(self, filepath, upload_file):
         '''Uploads the `upload_file` to `filepath` on `self.bucket`.'''
         upload_file.seek(0)
         content_type, x = mimetypes.guess_type(filepath)
@@ -75,7 +75,7 @@ class BaseS3Uploader(object):
             headers.update({'Content-Type': content_type})
         #k = boto.s3.key.Key(self.bucket)
         s3 = boto3.resource('s3')
-        k = None 
+        k = None
         for obj in self.bucket.objects.all():
             k = obj.key
         try:
@@ -173,8 +173,7 @@ class S3Uploader(BaseS3Uploader):
         # If a filename has been provided (a file is being uploaded) write the
         # file to the appropriate key in the AWS bucket.
         if self.filename:
-            self.upload_to_key(self.filepath, self.upload_file,
-                               make_public=True)
+            self.upload_to_key(self.filepath, self.upload_file)
             self.clear = True
 
         if (self.clear and self.old_filename
