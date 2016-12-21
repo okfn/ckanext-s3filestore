@@ -36,7 +36,7 @@ class BaseS3Uploader(object):
         '''Return a boto bucket, creating it if it doesn't exist.'''
         p_key = config.get('ckanext.s3filestore.aws_access_key_id')
         s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
-        region = config.get('ckanext.s3filestore.aws_region')
+        region = config.get('ckanext.s3filestore.region_name')
 
         # make s3 connection
         #S3_conn = boto.connect_s3(p_key, s_key)
