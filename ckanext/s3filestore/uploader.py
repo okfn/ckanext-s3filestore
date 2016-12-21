@@ -80,7 +80,7 @@ class BaseS3Uploader(object):
         try:
             #obj = self.bucket.put_object(Body=open(upload_file, 'rb'))
             obj.put(Body=upload_file)
-            self.bucket.set_acl('public-read')
+            #self.bucket.set_acl('public-read')
         except Exception as e:
             raise e
 
@@ -89,8 +89,8 @@ class BaseS3Uploader(object):
         s3 = boto3.resource('s3')
 
         try:
-            for obj in self.bucket.filter(Prefix=filepath):
-                s3.Object(self.bucket, obj.key).delete()
+            obj = s3.Object(self.bucket.name, filepath)
+            s3.Object(self.bucket, obj.key).delete()
         except Exception as e:
             raise e
 
