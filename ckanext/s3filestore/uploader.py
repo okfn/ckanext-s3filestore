@@ -73,10 +73,8 @@ class BaseS3Uploader(object):
         headers = {}
         if content_type:
             headers.update({'Content-Type': content_type})
-        #k = boto.s3.key.Key(self.bucket)
         s3 = boto3.resource('s3')
-        k = None
-        print self.bucket
+        k = self.bucket.key
         try:
             s3 = boto3.resource('s3')
             s3.Object(self.bucket, k).put(upload_file)
