@@ -52,7 +52,7 @@ class TestConnection(toolkit.CkanCommand):
                 bucket_name)
             try:
                 bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
-                    'LocationConstraint': region_name})
+                    'LocationConstraint': region})
             except botocore.exception.ClientError as e:
                 print 'An error was found while creating the bucket:'
                 print int(e.response['Error']['Code'])
