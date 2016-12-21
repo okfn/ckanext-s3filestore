@@ -5,7 +5,7 @@ import logging
 import datetime
 import mimetypes
 
-import boto3. botocore
+import boto3, botocore
 
 import ckan.model as model
 import ckan.lib.munge as munge
