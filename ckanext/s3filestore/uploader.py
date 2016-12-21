@@ -76,8 +76,7 @@ class BaseS3Uploader(object):
         #k = boto.s3.key.Key(self.bucket)
         s3 = boto3.resource('s3')
         k = None
-        for obj in self.bucket.objects.all():
-            k = obj.key
+        print self.bucket
         try:
             s3 = boto3.resource('s3')
             s3.Object(self.bucket, k).put(upload_file)
