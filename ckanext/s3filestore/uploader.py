@@ -39,12 +39,14 @@ class BaseS3Uploader(object):
         region = config.get('ckanext.s3filestore.region_name')
 
         # make s3 connection
-        #S3_conn = boto.connect_s3(p_key, s_key)
-        S3_conn = boto3.resource('s3')
+        session = boto3.Session('s3',
+                    aws_access_key_id=p_key,
+                    aws_secret_access_key=s_key,
+                    region_name=region)
+        S3_conn = session.resource('s3')
 
         # make sure bucket exists and that we can access
         try:
-            #bucket = S3_conn.get_bucket(bucket_name)
             bucket = S3_conn.Bucket(bucket_name)
         except botocore.exception.ClientError as e:
             error_code = int(e.reponse['Error']['Code'])
@@ -52,7 +54,6 @@ class BaseS3Uploader(object):
                 log.warning('Bucket {0} could not be found, ' +
                             'attempting to create it...'.format(bucket_name))
                 try:
-                    #bucket = S3_conn.create_bucket(bucket_name)
                     bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
                         'LocationConstraint': region})
                 except botocore.exception.ClientError as e:
@@ -75,8 +76,10 @@ class BaseS3Uploader(object):
             headers.update({'Content-Type': content_type})
 
         s3 = boto3.resource('s3')
+        obj = s3.Object(self.bucket.name, filepath)
         try:
-            obj = self.bucket.put_object(Body=open(upload_file, 'rb'))
+            #obj = self.bucket.put_object(Body=open(upload_file, 'rb'))
+            obj.put(Body=upload_file)
             self.bucket.set_acl('public-read')
         except Exception as e:
             raise e
