@@ -39,11 +39,11 @@ class BaseS3Uploader(object):
         region = config.get('ckanext.s3filestore.region_name')
 
         # make s3 connection
-        session = boto3.session.Session('s3',
-                    aws_access_key_id=p_key,
-                    aws_secret_access_key=s_key,
-                    region_name=region,)
-        S3_conn = session.resource('s3')
+        # session = boto3.session.Session('s3',
+        #             aws_access_key_id=p_key,
+        #             aws_secret_access_key=s_key,
+        #             region_name=region,)
+        S3_conn = boto3.resource('s3')
 
         # make sure bucket exists and that we can access
         try:
