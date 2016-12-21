@@ -46,7 +46,7 @@ class BaseS3Uploader(object):
         S3_conn = boto3.resource('s3')
 
         if region == 'eu-central-1':
-            S3_conn = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+            s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
 
         # make sure bucket exists and that we can access
         try:
@@ -79,6 +79,11 @@ class BaseS3Uploader(object):
             headers.update({'Content-Type': content_type})
 
         s3 = boto3.resource('s3')
+
+        session = boto3.session.Session()
+        if session.region_name == 'eu-central-1':
+            s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+
         obj = s3.Object(self.bucket.name, filepath)
         try:
             #obj = self.bucket.put_object(Body=open(upload_file, 'rb'))
@@ -90,6 +95,10 @@ class BaseS3Uploader(object):
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
         s3 = boto3.resource('s3')
+
+        session = boto3.session.Session()
+        if session.region_name == 'eu-central-1':
+            s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
 
         try:
             obj = s3.Object(self.bucket.name, filepath)
