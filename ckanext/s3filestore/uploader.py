@@ -73,11 +73,10 @@ class BaseS3Uploader(object):
         headers = {}
         if content_type:
             headers.update({'Content-Type': content_type})
-        s3 = boto3.resource('s3')
-        k = self.bucket.key
+        key = upload_file
         try:
             s3 = boto3.resource('s3')
-            s3.Object(self.bucket, k).put(upload_file)
+            s3.Object(self.bucket, upload_file).put(filepath)
             self.bucket.set_acl('public-read')
         except Exception as e:
             raise e
