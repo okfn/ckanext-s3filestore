@@ -75,8 +75,9 @@ class S3Controller(base.BaseController):
                 )
             s3 = session.resource('s3',
                 config= boto3.session.Config(signature_version='s3v4'))
+            transfer = boto3.s3.transfer.S3Transfer(s3)
 
-            contents = s3.meta.client.download_file(bucket, key, key_path)
+            contents = transfer.download_file(bucket.name, key, key_path)
 
             dataapp = paste.fileapp.DataApp(contents)
 
