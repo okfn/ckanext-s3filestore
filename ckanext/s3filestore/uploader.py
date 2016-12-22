@@ -82,7 +82,7 @@ class BaseS3Uploader(object):
 
         s3 = session.resource('s3', config= boto3.session.Config(signature_version='s3v4'))
         #transfer = boto3.s3.transfer.S3Transfer(s3)
-        obj = s3.Object(self.bucket.name, upload_file)
+        #obj = s3.Object(self.bucket.name, upload_file)
         try:
             #transfer.upload_file(filepath, self.bucket.name, upload_file)
             s3.Object(self.bucket.name, upload_file).put(Body=open(filepath), 'rb')
