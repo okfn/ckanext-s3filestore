@@ -48,11 +48,7 @@ class S3Controller(base.BaseController):
             if filename is None:
                 filename = os.path.basename(rsc['url'])
             key_path = upload.get_path(rsc['id'], filename)
-
-            try:
-                key = bucket.get_key(key_path)
-            except Exception as e:
-                raise e
+            key = filename
 
             if key is None:
                 log.warn('Key \'{0}\' not found in bucket \'{1}\''
@@ -71,8 +67,9 @@ class S3Controller(base.BaseController):
                     redirect(url)
 
                 abort(404, _('Resource data not found'))
-            contents = key.get_contents_as_string()
-            key.close()
+            
+            #contents = key.get_contents_as_string()
+            contents = bucket.get()['Body'].read()            
 
             dataapp = paste.fileapp.DataApp(contents)
 
