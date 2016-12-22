@@ -2,6 +2,7 @@ import os
 import mimetypes
 import paste.fileapp
 import pylons.config as config
+import boto3
 
 import ckan.plugins.toolkit as toolkit
 import ckan.logic as logic
