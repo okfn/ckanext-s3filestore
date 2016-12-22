@@ -81,11 +81,11 @@ class BaseS3Uploader(object):
         session = boto3.session.Session(region_name='eu-central-1')
 
         s3 = session.resource('s3', config= boto3.session.Config(signature_version='s3v4'))
-        #transfer = boto3.s3.transfer.S3Transfer(s3)
+        transfer = boto3.s3.transfer.S3Transfer(s3)
         #obj = s3.Object(self.bucket.name, upload_file)
         try:
-            #transfer.upload_file(filepath, self.bucket.name, upload_file)
-            s3.Object(self.bucket.name, upload_file).put(Body=open(filepath), 'rb')
+            transfer.upload_file(filepath, self.bucket.name, upload_file)
+            #s3.Object(self.bucket.name, upload_file).put(Body=open(filepath), 'rb')
         except Exception as e:
             raise e
 
