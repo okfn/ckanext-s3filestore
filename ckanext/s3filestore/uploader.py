@@ -85,7 +85,7 @@ class BaseS3Uploader(object):
         obj = s3.Object(self.bucket.name, upload_file)
         try:
             #transfer.upload_file(filepath, self.bucket.name, upload_file)
-            obj.put(Body=open(filepath), 'rb')
+            s3.Object(self.bucket.name, upload_file).put(Body=open(filepath), 'rb')
         except Exception as e:
             raise e
 
