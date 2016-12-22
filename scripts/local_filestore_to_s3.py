@@ -63,16 +63,17 @@ print '{0} resources matched on the database'.format(
 
 s3_connection = boto3.client('s3',
                 aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-bucket = s3_connection.Bucket(AWS_BUCKET_NAME)
-k = bucket.key
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                config=botocore.client.Config(signature_version='s3v4'))
+bucket = s3_connection.create_bucket(AWS_BUCKET_NAME)
+obj = s3.Object(AWS_BUCKET_NAME)
 
 uploaded_resources = []
 for resource_id, file_name in resource_ids_and_names.iteritems():
-    k.key = 'resources/{resource_id}/{file_name}'.format(
+    key = 'resources/{resource_id}/{file_name}'.format(
         resource_id=resource_id, file_name=file_name)
     if AWS_STORAGE_PATH:
-        k.key = AWS_STORAGE_PATH + '/' + k.key
+        key = AWS_STORAGE_PATH + '/' + key
 
     k.set_contents_from_filename(resource_ids_and_paths[resource_id])
     uploaded_resources.append(resource_id)
