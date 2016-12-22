@@ -73,7 +73,7 @@ class S3Controller(base.BaseController):
             session = boto3.session.Session(
                     region_name='eu-central-1'
                 )
-            s3 = session.response('s3',
+            s3 = session.resource('s3',
                 config= boto3.session.Config(signature_version='s3v4'))
 
             contents = s3.meta.client.download_file(bucket, key, key_path)
