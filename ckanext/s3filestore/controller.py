@@ -74,7 +74,9 @@ class S3Controller(base.BaseController):
             s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
             #obj = s3.Object(bucket.name, key)
             #contents = obj.get()['Body'].read()
-            contents = s3.download_file(key, bucket.name, filepath)
+            for obj in bucket.objects.all():
+                key = obj.key
+                body = obj.get()['Body'].read()
 
             dataapp = paste.fileapp.DataApp(contents)
 
