@@ -66,7 +66,7 @@ s3_connection = boto3.client('s3',
                 aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
                 config=botocore.client.Config(signature_version='s3v4'))
 bucket = s3_connection.create_bucket(AWS_BUCKET_NAME)
-obj = s3.Object(AWS_BUCKET_NAME)
+obj = s3.Object(AWS_BUCKET_NAME, file_name)
 
 uploaded_resources = []
 for resource_id, file_name in resource_ids_and_names.iteritems():
@@ -75,7 +75,7 @@ for resource_id, file_name in resource_ids_and_names.iteritems():
     if AWS_STORAGE_PATH:
         key = AWS_STORAGE_PATH + '/' + key
 
-    k.set_contents_from_filename(resource_ids_and_paths[resource_id])
+    obj.put(Body=open(key, 'rb'))
     uploaded_resources.append(resource_id)
     print 'Uploaded resource {0} ({1}) to S3'.format(resource_id, file_name)
 
