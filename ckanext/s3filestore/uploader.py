@@ -80,10 +80,10 @@ class BaseS3Uploader(object):
 
         #s3 = boto3.resource('s3')
 
-        session = boto3.session.Session()
-        print session.region_name
+        session = boto3.session.Session(region_name='eu-central-1')
         #if session.region_name == 'eu-central-1':
-        s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+        #s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+        s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 
         obj = s3.Object(self.bucket.name, filepath)
         try:
