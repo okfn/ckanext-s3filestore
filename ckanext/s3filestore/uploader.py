@@ -46,7 +46,7 @@ class BaseS3Uploader(object):
         S3_conn = boto3.resource('s3')
 
         if region == 'eu-central-1':
-            s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+            S3_conn = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
 
         # make sure bucket exists and that we can access
         try:
