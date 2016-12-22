@@ -71,9 +71,7 @@ class S3Controller(base.BaseController):
             
             #contents = key.get_contents_as_string()
             session = boto3.session.Session(
-                    aws_access_key_id=p_key,
-                    aws_secret_access_key=s_key,
-                    region_name=region,
+                    region_name='eu-central-1'
                 )
             s3 = session.response('s3',
                 config= boto3.session.Config(signature_version='s3v4'))
