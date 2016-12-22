@@ -26,7 +26,7 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
             'ckanext.s3filestore.aws_access_key_id',
             'ckanext.s3filestore.aws_secret_access_key',
             'ckanext.s3filestore.aws_bucket_name',
-            'ckanext.s3filestore.region_name'
+            'ckanext.s3filestore.region_name',
         )
         for option in config_options:
             if not config.get(option, None):
