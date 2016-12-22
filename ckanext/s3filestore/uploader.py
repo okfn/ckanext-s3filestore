@@ -80,7 +80,7 @@ class BaseS3Uploader(object):
 
         session = boto3.session.Session(region_name='eu-central-1')
 
-        s3 = session.clinet('s3', config= boto3.session.Config(signature_version='s3v4'))
+        s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 
         #obj = s3.Object(self.bucket.name, filepath)
         try:
