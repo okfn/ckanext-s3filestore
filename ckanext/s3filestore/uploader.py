@@ -85,10 +85,11 @@ class BaseS3Uploader(object):
         #s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
         s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 
-        obj = s3.Object(self.bucket.name, filepath)
+        #obj = s3.Object(self.bucket.name, filepath)
         try:
             #obj = self.bucket.put_object(Body=open(upload_file, 'rb'))
-            obj.put(Body=upload_file)
+            s3.upload_file(filepath, self.bucket, upload_file)
+            #obj.put(Body=upload_file)
             #self.bucket.set_acl('public-read')
         except Exception as e:
             raise e
