@@ -81,7 +81,7 @@ class BaseS3Uploader(object):
         session = boto3.session.Session(region_name='eu-central-1')
 
         s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
-        transfer = S3Transfer(client)
+        transfer = boto3.s3.S3Transfer(s3)
         #obj = s3.Object(self.bucket.name, filepath)
         try:
             transfer.upload_file(filepath, self.bucket.name, upload_file)
