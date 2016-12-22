@@ -83,11 +83,12 @@ class BaseS3Uploader(object):
         session = boto3.session.Session(region_name='eu-central-1')
         #if session.region_name == 'eu-central-1':
         #s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
-        s3 = session.resource('s3', config= boto3.session.Config(signature_version='s3v4'))
+        s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
 
-        obj = s3.Object(self.bucket.name, filepath)
+        #obj = s3.Object(self.bucket.name, filepath)
         try:
-            obj.put(Body=upload_file)
+            client.put_object(self.bucket.name, filepath)
+            #obj.put(Body=upload_file)
         except Exception as e:
             raise e
 
