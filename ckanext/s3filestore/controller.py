@@ -76,13 +76,13 @@ class S3Controller(base.BaseController):
             # s3 = session.resource('s3',
             #     config= boto3.session.Config(signature_version='s3v4'))
 
-            bucket.download_file(key, key_path)
-            # dataapp = paste.fileapp.DataApp(contents)
+            contents = bucket.get()['Body'].read()
+            dataapp = paste.fileapp.DataApp(contents)
 
-            # try:
-            #     status, headers, app_iter = request.call_application(dataapp)
-            # except OSError:
-            #     abort(404, _('Resource data not found'))
+            try:
+                status, headers, app_iter = request.call_application(dataapp)
+            except OSError:
+                abort(404, _('Resource data not found'))
 
             response.headers.update(dict(headers))
             response.status = status
