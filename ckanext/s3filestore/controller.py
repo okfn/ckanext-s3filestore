@@ -76,7 +76,7 @@ class S3Controller(base.BaseController):
             # s3 = session.resource('s3',
             #     config= boto3.session.Config(signature_version='s3v4'))
 
-            obj = self.bucket.Object(key)
+            obj = bucket.Object(key)
             contents = obj.get()['Body'].read().decode('utf-8')
             dataapp = paste.fileapp.DataApp(contents)
 
