@@ -43,10 +43,13 @@ class BaseS3Uploader(object):
         #             aws_access_key_id=p_key,
         #             aws_secret_access_key=s_key,
         #             region_name=region,)
-        S3_conn = boto3.resource('s3')
+        session = boto3.session.Session(aws_access_key_id=p_key,
+                          aws_secret_access_key=s_key,
+                          region_name=region)
+        S3_conn = session.resource('s3')
 
         if region == 'eu-central-1':
-            S3_conn = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+            S3_conn = session.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
 
         # make sure bucket exists and that we can access
         try:
@@ -63,7 +66,7 @@ class BaseS3Uploader(object):
                     log.warning(
                         'Could not create bucket {0}: {1}'.format(bucket_name,
                                                                   str(e)))
-            elif eror_code == 403:
+            elif error_code == 403:
                 log.warning('Access to bucket {0} denied'.format(bucket_name))
             else:
                 raise

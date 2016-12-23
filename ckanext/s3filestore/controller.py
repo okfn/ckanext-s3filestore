@@ -70,11 +70,11 @@ class S3Controller(base.BaseController):
                 abort(404, _('Resource data not found'))
             
             #contents = key.get_contents_as_string()
-            session = boto3.session.Session(
-                    region_name='eu-central-1'
-                )
-            s3 = session.resource('s3',
-                config= boto3.session.Config(signature_version='s3v4'))
+            # session = boto3.session.Session(
+            #         region_name='eu-central-1'
+            #     )
+            # s3 = session.resource('s3',
+            #     config= boto3.session.Config(signature_version='s3v4'))
 
             bucket.download_file(key, key_path)
             # dataapp = paste.fileapp.DataApp(contents)
