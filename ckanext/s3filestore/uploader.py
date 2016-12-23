@@ -87,10 +87,10 @@ class BaseS3Uploader(object):
         transfer = boto3.s3.transfer.S3Transfer(s3)
         #obj = s3.Object(self.bucket.name, upload_file)
         try:
-            transfer.upload_file(filepath, self.bucket.name, upload_file)
-            bucket_acl = s3.BucketAcl(self.bucket.name)
-            bucket_acl.Acl().put(ACL='public-read')
-
+            # transfer.upload_file(filepath, self.bucket.name, upload_file)
+            # bucket_acl = s3.BucketAcl(self.bucket.name)
+            # bucket_acl.Acl().put(ACL='public-read')
+            self.bucket.upload_file(filepath, upload_file)
             #s3.Object(self.bucket.name, upload_file).put(Body=open(filepath), 'rb')
         except Exception as e:
             raise e
