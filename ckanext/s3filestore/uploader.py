@@ -75,22 +75,29 @@ class BaseS3Uploader(object):
 
     def upload_to_key(self, filepath, upload_file):
         '''Uploads the `upload_file` to `filepath` on `self.bucket`.'''
+        p_key = config.get('ckanext.s3filestore.aws_access_key_id')
+        s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
+        region = config.get('ckanext.s3filestore.region_name')
+        
         upload_file.seek(0)
         content_type, x = mimetypes.guess_type(filepath)
         headers = {}
         if content_type:
             headers.update({'Content-Type': content_type})
 
-        session = boto3.session.Session(region_name='eu-central-1')
+        session = boto3.session.Session(aws_access_key_id=p_key,
+                          aws_secret_access_key=s_key,
+                          region_name=region)
 
-        s3 = session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
-        transfer = boto3.s3.transfer.S3Transfer(s3)
-        #obj = s3.Object(self.bucket.name, upload_file)
+        s3 = session.resource('s3', config= boto3.session.Config(signature_version='s3v4'))
+        #transfer = boto3.s3.transfer.S3Transfer(s3)
+        # obj = s3.Object(self.bucket.name, filepath)
         try:
             # transfer.upload_file(filepath, self.bucket.name, upload_file)
             # bucket_acl = s3.BucketAcl(self.bucket.name)
             # bucket_acl.Acl().put(ACL='public-read')
-            self.bucket.upload_file(filepath, upload_file)
+            #self.bucket.upload_file(upload_file, filepath)
+            obj = s3.Object(self.bucket.name, filepath).put(Body=upload_file.read())
             print 'Upload'
             #s3.Object(self.bucket.name, upload_file).put(Body=open(filepath), 'rb')
         except Exception as e:
