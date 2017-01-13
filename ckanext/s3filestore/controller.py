@@ -20,7 +20,7 @@ NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 get_action = logic.get_action
 abort = base.abort
-redirect = base.redirect
+redirect = toolkit.redirect_to
 
 
 class S3Controller(base.BaseController):
@@ -76,7 +76,8 @@ class S3Controller(base.BaseController):
             # s3 = session.resource('s3',
             #     config= boto3.session.Config(signature_version='s3v4'))
 
-            obj = bucket.Object(key)
+            # this is partial solution, because the changes in implementation, KEY is now actually the KEY_PATH
+            obj = bucket.Object(key_path)
             contents = obj.get()['Body'].read().decode('utf-8')
             dataapp = paste.fileapp.DataApp(contents)
 
