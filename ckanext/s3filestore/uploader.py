@@ -46,9 +46,9 @@ class BaseS3Uploader(object):
             session = boto3.session.Session(aws_access_key_id=p_key,
                                             aws_secret_access_key=s_key,
                                             region_name=region)
-            S3_conn = session.resource('s3', config=botocore.client.Config(signature_version=signature))
+            s3 = session.resource('s3', config=botocore.client.Config(signature_version=signature))
             try:
-                bucket = S3_conn.Bucket(bucket_name)
+                bucket = s3.Bucket(bucket_name)
             except botocore.exception.ClientError as e:
                 error_code = init(e.response['Error']['Code'])
                 if error_code == 404:
@@ -101,27 +101,54 @@ class BaseS3Uploader(object):
         headers = {}
         if content_type:
             headers.update({'Content-Type': content_type})
-        k = boto.s3.key.Key(self.bucket)
-        try:
-            k.key = filepath
-            k.set_contents_from_file(upload_file, headers=headers)
-            if make_public:
-                k.make_public()
-        except Exception as e:
-            raise e
-        finally:
-            k.close()
+
+        if region == 'eu-central-1':
+            print 'use boto3'
+            import boto3, botocore
+            session = boto3.session.Session(aws_access_key_id=p_key,
+                                            aws_secret_access_key=s_key,
+                                            region_name=region)
+            s3 = session.resource('s3', config=botocore.client.Config(signature_version=signature))
+            try:
+                s3.Object(self.bucket_name, filepath).put(Body=upload_file.read())
+                log.info("Succesfully uploaded {0} to S3!".format(upload_file.filename))
+            except Exception as e:
+                raise e
+        else:
+            k = boto.s3.key.Key(self.bucket)
+            try:
+                k.key = filepath
+                k.set_contents_from_file(upload_file, headers=headers)
+                if make_public:
+                    k.make_public()
+            except Exception as e:
+                raise e
+            finally:
+                k.close()
 
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
-        k = boto.s3.key.Key(self.bucket)
-        try:
-            k.key = filepath
-            k.delete()
-        except Exception as e:
-            raise e
-        finally:
-            k.close()
+        if region == 'eu-central-1':
+            print 'use boto3'
+            import boto3, botocore
+            s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+            session = boto3.session.Session(aws_access_key_id=p_key,
+                                            aws_secret_access_key=s_key,
+                                            region_name=region)
+            try:
+                obj = s3.Object(self.bucket_name, filepath)
+                s3.Object(self.bucket, obj.key).delete()
+            except Exception as e:
+                raise e
+        else:
+            k = boto.s3.key.Key(self.bucket)
+            try:
+                k.key = filepath
+                k.delete()
+            except Exception as e:
+                raise e
+            finally:
+                k.close()
 
 
 class S3Uploader(BaseS3Uploader):
