@@ -72,7 +72,7 @@ class S3Controller(base.BaseController):
                     redirect(url)
 
                 abort(404, _('Resource data not found'))
-            
+
             if self.region == 'eucentral-1':
                 contents = key.get_contents_as_string()
                 key.close()

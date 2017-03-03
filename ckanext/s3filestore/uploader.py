@@ -22,6 +22,7 @@ _max_image_size = None
 class S3FileStoreException(Exception):
     pass
 
+
 class BaseS3Uploader(object):
 
     def __init__(self):
@@ -40,9 +41,10 @@ class BaseS3Uploader(object):
         '''Return a boto bucket, creating it if it doesn't exist.'''
         if self.region == 'eu-central-1':
             print 'use boto 3'
-            import boto3, botocore
+            import boto3
+            import botocore
 
-            #make s3 connection using boto3
+            # make s3 connection using boto3
             session = boto3.session.Session(aws_access_key_id=self.p_key,
                                             aws_secret_access_key=self.s_key,
                                             region_name=self.region)
@@ -59,7 +61,8 @@ class BaseS3Uploader(object):
                         bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
                             'LocationConstraint': region})
                     except botocore.exception.ClientError as e:
-                        log.warning('Could not create bucket {0}: {1}'.format(bucket_name, str(e)))
+                        log.warning('Could not create bucket {0}: {1}'.format(
+                            bucket_name, str(e)))
                 elif error_code == 403:
                     raise S3FileStoreException(
                         'Access to bucket {0} denied'.format(bucket_name))
@@ -102,15 +105,18 @@ class BaseS3Uploader(object):
 
         if self.region == 'eu-central-1':
             print 'use boto3'
-            import boto3, botocore
+            import boto3
+            import botocore
             session = boto3.session.Session(aws_access_key_id=self.p_key,
                                             aws_secret_access_key=self.s_key,
                                             region_name=self.region)
             s3 = session.resource('s3',
                                   config=botocore.client.Config(signature_version=self.signature))
             try:
-                s3.Object(self.bucket_name, filepath).put(Body=upload_file.read())
-                log.info("Succesfully uploaded {0} to S3!".format(upload_file.filename))
+                s3.Object(self.bucket_name, filepath).put(
+                    Body=upload_file.read())
+                log.info("Succesfully uploaded {0} to S3!".format(
+                    upload_file.filename))
             except Exception as e:
                 raise e
         else:
@@ -129,8 +135,10 @@ class BaseS3Uploader(object):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
         if self.region == 'eu-central-1':
             print 'use boto3'
-            import boto3, botocore
-            s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
+            import boto3
+            import botocore
+            s3 = boto3.resource(
+                's3', config=botocore.client.Config(signature_version='s3v4'))
             session = boto3.session.Session(aws_access_key_id=p_key,
                                             aws_secret_access_key=s_key,
                                             region_name=region)
