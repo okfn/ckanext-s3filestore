@@ -57,7 +57,7 @@ class BaseS3Uploader(object):
                 try:
                     bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
                         'LocationConstraint': region})
-                    except botocore.exception.ClientError as e:
+                except botocore.exception.ClientError as e:
                         log.warning(
                             'Could not create bucket {0}: {1}'.format(bucket_name,
                                                                   str(e)))
