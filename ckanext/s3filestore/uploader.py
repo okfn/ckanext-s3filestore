@@ -54,13 +54,13 @@ class BaseS3Uploader(object):
                 if error_code == 404:
                     log.warning('Bucket {0} could not be found, ' +
                             'attempting to create it...'.format(bucket_name))
-                try:
-                    bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
-                        'LocationConstraint': region})
-                except botocore.exception.ClientError as e:
-                        log.warning(
-                            'Could not create bucket {0}: {1}'.format(bucket_name,
-                                                                  str(e)))
+                    try:
+                        bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
+                            'LocationConstraint': region})
+                    except botocore.exception.ClientError as e:
+                            log.warning(
+                                'Could not create bucket {0}: {1}'.format(bucket_name,
+                                                                      str(e)))
                 elif error_code == 403:
                     raise S3FileStoreException(
                        'Access to bucket {0} denied'.format(bucket_name))
