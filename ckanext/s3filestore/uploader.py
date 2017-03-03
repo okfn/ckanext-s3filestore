@@ -43,27 +43,26 @@ class BaseS3Uploader(object):
             import boto3, botocore
 
             #make s3 connection using boto3
-            session = boto3.session.Session(aws_access_key_id=p_key,
-                                            aws_secret_access_key=s_key,
-                                            region_name=region)
-            s3 = session.resource('s3', config=botocore.client.Config(signature_version=signature))
+            session = boto3.session.Session(aws_access_key_id=self.p_key,
+                                            aws_secret_access_key=self.s_key,
+                                            region_name=self.region)
+            s3 = session.resource('s3',
+                                  config=botocore.client.Config(signature_version=self.signature))
             try:
                 bucket = s3.Bucket(bucket_name)
             except botocore.exception.ClientError as e:
                 error_code = init(e.response['Error']['Code'])
                 if error_code == 404:
                     log.warning('Bucket {0} could not be found, ' +
-                            'attempting to create it...'.format(bucket_name))
+                                'attempting to create it...'.format(bucket_name))
                     try:
                         bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
                             'LocationConstraint': region})
                     except botocore.exception.ClientError as e:
-                            log.warning(
-                                'Could not create bucket {0}: {1}'.format(bucket_name,
-                                                                      str(e)))
+                        log.warning('Could not create bucket {0}: {1}'.format(bucket_name, str(e)))
                 elif error_code == 403:
                     raise S3FileStoreException(
-                       'Access to bucket {0} denied'.format(bucket_name))
+                        'Access to bucket {0} denied'.format(bucket_name))
                 else:
                     raise S3FileStoreException(
                         'Something went wrong for bucket {0}'.format(bucket_name))
@@ -73,21 +72,20 @@ class BaseS3Uploader(object):
 
             # make sure bucket exists and that we can access
             try:
-               bucket = S3_conn.get_bucket(bucket_name)
+                bucket = S3_conn.get_bucket(bucket_name)
             except boto.exception.S3ResponseError as e:
                 if e.status == 404:
                     log.warning('Bucket {0} could not be found, ' +
-                            'attempting to create it...'.format(bucket_name))
+                                'attempting to create it...'.format(bucket_name))
                     try:
                         bucket = S3_conn.create_bucket(bucket_name)
                     except (boto.exception.S3CreateError,
                             boto.exception.S3ResponseError) as e:
                         raise S3FileStoreException(
-                            'Could not create bucket {0}: {1}'.format(bucket_name,
-                                                                  str(e)))
+                            'Could not create bucket {0}: {1}'.format(bucket_name, str(e)))
                 elif e.status == 403:
                     raise S3FileStoreException(
-                       'Access to bucket {0} denied'.format(bucket_name))
+                        'Access to bucket {0} denied'.format(bucket_name))
                 else:
                     raise S3FileStoreException(
                         'Something went wrong for bucket {0}'.format(bucket_name))
@@ -105,10 +103,11 @@ class BaseS3Uploader(object):
         if self.region == 'eu-central-1':
             print 'use boto3'
             import boto3, botocore
-            session = boto3.session.Session(aws_access_key_id=p_key,
-                                            aws_secret_access_key=s_key,
-                                            region_name=region)
-            s3 = session.resource('s3', config=botocore.client.Config(signature_version=signature))
+            session = boto3.session.Session(aws_access_key_id=self.p_key,
+                                            aws_secret_access_key=self.s_key,
+                                            region_name=self.region)
+            s3 = session.resource('s3',
+                                  config=botocore.client.Config(signature_version=self.signature))
             try:
                 s3.Object(self.bucket_name, filepath).put(Body=upload_file.read())
                 log.info("Succesfully uploaded {0} to S3!".format(upload_file.filename))

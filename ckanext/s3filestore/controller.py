@@ -44,6 +44,7 @@ class S3Controller(base.BaseController):
             upload = uploader.get_resource_uploader(rsc)
             bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
             bucket = upload.get_s3_bucket(bucket_name)
+            region = config.get('ckanext.s3filestore.region_name')
 
             if filename is None:
                 filename = os.path.basename(rsc['url'])
@@ -71,8 +72,10 @@ class S3Controller(base.BaseController):
                     redirect(url)
 
                 abort(404, _('Resource data not found'))
-            contents = key.get_contents_as_string()
-            key.close()
+            
+            if self.region == 'eucentral-1':
+                contents = key.get_contents_as_string()
+                key.close()
 
             dataapp = paste.fileapp.DataApp(contents)
 
