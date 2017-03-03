@@ -38,7 +38,7 @@ class BaseS3Uploader(object):
 
     def get_s3_bucket(self, bucket_name):
         '''Return a boto bucket, creating it if it doesn't exist.'''
-        if region == 'eu-central-1':
+        if self.region == 'eu-central-1':
             print 'use boto 3'
             import boto3, botocore
 
@@ -102,7 +102,7 @@ class BaseS3Uploader(object):
         if content_type:
             headers.update({'Content-Type': content_type})
 
-        if region == 'eu-central-1':
+        if self.region == 'eu-central-1':
             print 'use boto3'
             import boto3, botocore
             session = boto3.session.Session(aws_access_key_id=p_key,
@@ -128,7 +128,7 @@ class BaseS3Uploader(object):
 
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
-        if region == 'eu-central-1':
+        if self.region == 'eu-central-1':
             print 'use boto3'
             import boto3, botocore
             s3 = boto3.resource('s3', config=botocore.client.Config(signature_version='s3v4'))
