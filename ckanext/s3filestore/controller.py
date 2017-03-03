@@ -19,7 +19,7 @@ NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 get_action = logic.get_action
 abort = base.abort
-redirect = base.redirect
+redirect = toolkit.redirect_to
 
 
 class S3Controller(base.BaseController):

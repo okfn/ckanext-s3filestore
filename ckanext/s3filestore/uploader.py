@@ -27,6 +27,10 @@ class BaseS3Uploader(object):
     def __init__(self):
         self.bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
         self.bucket = self.get_s3_bucket(self.bucket_name)
+        self.p_key = config.get('ckanext.s3filestore.aws_access_key_id')
+        self.s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
+        self.region = config.get('ckanext.s3filestore.region_name')
+        self.signature = config.get('ckanext.s3filestore.sigranure_version')
 
     def get_directory(self, id, storage_path):
         directory = os.path.join(storage_path, id)
@@ -34,18 +38,45 @@ class BaseS3Uploader(object):
 
     def get_s3_bucket(self, bucket_name):
         '''Return a boto bucket, creating it if it doesn't exist.'''
-        p_key = config.get('ckanext.s3filestore.aws_access_key_id')
-        s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
+        if region == 'eu-central-1':
+            print 'use boto 3'
+            import boto3, botocore
 
-        # make s3 connection
-        S3_conn = boto.connect_s3(p_key, s_key)
+            #make s3 connection using boto3
+            session = boto3.session.Session(aws_access_key_id=p_key,
+                                            aws_secret_access_key=s_key,
+                                            region_name=region)
+            S3_conn = session.resource('s3', config=botocore.client.Config(signature_version=signature))
+            try:
+                bucket = S3_conn.Bucket(bucket_name)
+            except botocore.exception.ClientError as e:
+                error_code = init(e.response['Error']['Code'])
+                if error_code == 404:
+                    log.warning('Bucket {0} could not be found, ' +
+                            'attempting to create it...'.format(bucket_name))
+                try:
+                    bucket = S3_conn.create_bucket(bucket_name, CreateBucketConfiguration={
+                        'LocationConstraint': region})
+                except botocore.exception.ClientError as e:
+                    log.warning(
+                        'Could not create bucket {0}: {1}'.format(bucket_name,
+                                                                  str(e)))
+                elif error_code == 403:
+                    raise S3FileStoreException(
+                       'Access to bucket {0} denied'.format(bucket_name))
+                else:
+                    raise S3FileStoreException(
+                        'Something went wrong for bucket {0}'.format(bucket_name))
+        else:
+            # make s3 connection with boto
+            S3_conn = boto.connect_s3(p_key, s_key)
 
-        # make sure bucket exists and that we can access
-        try:
-            bucket = S3_conn.get_bucket(bucket_name)
-        except boto.exception.S3ResponseError as e:
-            if e.status == 404:
-                log.warning('Bucket {0} could not be found, ' +
+            # make sure bucket exists and that we can access
+            try:
+               bucket = S3_conn.get_bucket(bucket_name)
+            except boto.exception.S3ResponseError as e:
+                if e.status == 404:
+                    log.warning('Bucket {0} could not be found, ' +
                             'attempting to create it...'.format(bucket_name))
                 try:
                     bucket = S3_conn.create_bucket(bucket_name)
@@ -54,11 +85,12 @@ class BaseS3Uploader(object):
                     raise S3FileStoreException(
                         'Could not create bucket {0}: {1}'.format(bucket_name,
                                                                   str(e)))
-            elif e.status == 403:
-                raise S3FileStoreException(
-                    'Access to bucket {0} denied'.format(bucket_name))
-            else:
-                raise
+                elif e.status == 403:
+                    raise S3FileStoreException(
+                       'Access to bucket {0} denied'.format(bucket_name))
+                else:
+                    raise S3FileStoreException(
+                        'Something went wrong for bucket {0}'.format(bucket_name))
 
         return bucket
 
