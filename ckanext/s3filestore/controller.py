@@ -50,10 +50,13 @@ class S3Controller(base.BaseController):
                 filename = os.path.basename(rsc['url'])
             key_path = upload.get_path(rsc['id'], filename)
 
-            try:
-                key = bucket.get_key(key_path)
-            except Exception as e:
-                raise e
+            if region == 'eu-central-1':
+                key = filename
+            else:
+                try:
+                    key = bucket.get_key(key_path)
+                except Exception as e:
+                    raise e
 
             if key is None:
                 log.warn('Key \'{0}\' not found in bucket \'{1}\''
@@ -73,7 +76,11 @@ class S3Controller(base.BaseController):
 
                 abort(404, _('Resource data not found'))
 
-            if self.region == 'eucentral-1':
+            if region == 'eu-central-1':
+                import boto3
+                obj = bucket.Object(key_path)
+                contents = str(obj.get()['Body'].read())
+            else:
                 contents = key.get_contents_as_string()
                 key.close()
 
