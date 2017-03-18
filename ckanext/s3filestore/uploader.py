@@ -31,6 +31,7 @@ class BaseS3Uploader(object):
         self.s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
         self.region = config.get('ckanext.s3filestore.region_name')
         self.signature = config.get('ckanext.s3filestore.sigranure_version')
+        self.host_name = config.get('ckanext.s3filestore.host_name')
         self.bucket = self.get_s3_bucket(self.bucket_name)
 
     def get_directory(self, id, storage_path):
@@ -39,7 +40,7 @@ class BaseS3Uploader(object):
 
     def get_s3_bucket(self, bucket_name):
         '''Return a boto bucket, creating it if it doesn't exist.'''
-        if self.region == 'eu-central-1':
+        if self.region == 'us-east-1':
             print 'use boto 3'
             import boto3
             import botocore
@@ -48,7 +49,7 @@ class BaseS3Uploader(object):
             session = boto3.session.Session(aws_access_key_id=self.p_key,
                                             aws_secret_access_key=self.s_key,
                                             region_name=self.region)
-            s3 = session.resource('s3',
+            s3 = session.resource('s3', endpoint_url=self.host_name, 
                                   config=botocore.client.Config(signature_version=self.signature))
             try:
                 bucket = s3.Bucket(bucket_name)
@@ -71,7 +72,7 @@ class BaseS3Uploader(object):
                         'Something went wrong for bucket {0}'.format(bucket_name))
         else:
             # make s3 connection with boto
-            S3_conn = boto.connect_s3(p_key, s_key)
+            S3_conn = boto.connect_s3(self.p_key, self.s_key)
 
             # make sure bucket exists and that we can access
             try:
@@ -103,14 +104,14 @@ class BaseS3Uploader(object):
         if content_type:
             headers.update({'Content-Type': content_type})
 
-        if self.region == 'eu-central-1':
+        if self.region == 'us-east-1':
             print 'use boto3'
             import boto3
             import botocore
             session = boto3.session.Session(aws_access_key_id=self.p_key,
                                             aws_secret_access_key=self.s_key,
                                             region_name=self.region)
-            s3 = session.resource('s3',
+            s3 = session.resource('s3', endpoint_url=self.host_name,
                                   config=botocore.client.Config(signature_version=self.signature))
             try:
                 s3.Object(self.bucket_name, filepath).put(
@@ -138,7 +139,7 @@ class BaseS3Uploader(object):
             import boto3
             import botocore
             s3 = boto3.resource(
-                's3', config=botocore.client.Config(signature_version='s3v4'))
+                's3', endpoint_url=self.host_name, config=botocore.client.Config(signature_version='s3v4'))
             session = boto3.session.Session(aws_access_key_id=p_key,
                                             aws_secret_access_key=s_key,
                                             region_name=region)
