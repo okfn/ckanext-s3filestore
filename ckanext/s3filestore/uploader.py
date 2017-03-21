@@ -92,6 +92,7 @@ class BaseS3Uploader(object):
                     Body=upload_file.read())
                 log.info("Succesfully uploaded {0} to S3!".format(filepath))
             except Exception as e:
+                log.error('Something went very very wrong for {0}'.format(str(e)))
                 raise e
 
     def clear_key(self, filepath):
