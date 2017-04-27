@@ -48,7 +48,6 @@ class BaseS3Uploader(object):
                                         region_name=self.region)
         s3 = session.resource('s3', endpoint_url=self.host_name,
                               config=botocore.client.Config(signature_version=self.signature))
-        import pdb; pdb.set_trace()  # breakpoint 5818a285 //
         bucket = s3.Bucket(bucket_name)
         try:
             if s3.Bucket(bucket.name) in s3.buckets.all():
