@@ -69,7 +69,6 @@ class S3Controller(base.BaseController):
 
                 abort(404, _('Resource data not found'))
 
-
             obj = bucket.Object(key_path)
             contents = str(obj.get()['Body'].read())
 
@@ -135,7 +134,10 @@ class S3Controller(base.BaseController):
         storage_path = S3Uploader.get_storage_path(upload_to)
         filepath = os.path.join(storage_path, filename)
         #host = config.get('ckanext.s3.filestore.hostname')
-        redirect_url = 'https://{bucket_name}.s3.amazonaws.com/{filepath}' \
-            .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
-                    filepath=filepath)
+        # redirect_url = 'https://{bucket_name}.minio.omc.ckan.io/{filepath}' \
+        #     .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
+        #             filepath=filepath)
+        redirect_url = 'http://minio.omc.ckan.io/{bucket_name}/{file_path}'\
+                          .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
+                          filepath=filepath)
         redirect(redirect_url)
