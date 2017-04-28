@@ -89,36 +89,31 @@ class BaseS3Uploader(object):
     def upload_to_key(self, filepath, upload_file, make_public=False):
         '''Uploads the `upload_file` to `filepath` on `self.bucket`.'''
         upload_file.seek(0)
-        content_type, x = mimetypes.guess_type(filepath)
-        headers = {}
-        if content_type:
-            headers.update({'Content-Type': content_type})
 
-            session = boto3.session.Session(aws_access_key_id=self.p_key,
-                                            aws_secret_access_key=self.s_key,
-                                            region_name=self.region)
-            s3 = session.resource('s3', endpoint_url=self.host_name,
-                                  config=botocore.client.Config(signature_version=self.signature))
-            try:
-                s3.Object(self.bucket_name, filepath).put(
-                    Body=upload_file.read(), ACL='public-read')
-                log.info("Succesfully uploaded {0} to S3!".format(filepath))
-            except Exception as e:
-                log.error(
-                    'Something went very very wrong for {0}'.format(str(e)))
-                raise e
+        session = boto3.session.Session(aws_access_key_id=self.p_key,
+                                        aws_secret_access_key=self.s_key,
+                                        region_name=self.region)
+        s3 = session.resource('s3', endpoint_url=self.host_name,
+                              config=botocore.client.Config(signature_version=self.signature))
+        try:
+            s3.Object(self.bucket_name, filepath).put(
+                Body=upload_file.read(), ACL='public-read')
+            log.info("Succesfully uploaded {0} to S3!".format(filepath))
+        except Exception as e:
+            log.error('Something went very very wrong for {0}'.format(str(e)))
+            raise e
 
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
         session = boto3.session.Session(aws_access_key_id=self.p_key,
-                                        aws_secret_access_key=self.s_key,
-                                        region_name=self.region)
+                                    aws_secret_access_key=self.s_key,
+                                    region_name=self.region)
         s3 = session.resource('s3', endpoint_url=self.host_name, config=botocore.client.Config(
-                signature_version=self.signature))
+                             signature_version=self.signature))
         try:
             s3.Object(self.bucket_name, filepath).delete()
         except Exception as e:
-                raise e
+            raise e
 
 
 class S3Uploader(BaseS3Uploader):
