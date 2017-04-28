@@ -137,7 +137,7 @@ class S3Controller(base.BaseController):
         # redirect_url = 'https://{bucket_name}.minio.omc.ckan.io/{filepath}' \
         #     .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
         #             filepath=filepath)
-        redirect_url = 'http://minio.omc.ckan.io/{bucket_name}/{file_path}'\
+        redirect_url = 'http://minio.omc.ckan.io/{bucket_name}/{filepath}'\
                           .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
                           filepath=filepath)
         redirect(redirect_url)
