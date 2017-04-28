@@ -52,13 +52,15 @@ class BaseS3Uploader(object):
         try:
             if s3.Bucket(bucket.name) in s3.buckets.all():
                 log.info('Bucket {0} found!'.format(bucket_name))
-                
+
             else:
-                log.warning('Bucket {0} could not be found, attempting to create it...'.format(bucket_name))
+                log.warning(
+                    'Bucket {0} could not be found, attempting to create it...'.format(bucket_name))
                 try:
                     bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
                         'LocationConstraint': 'us-east-1'})
-                    log.info('Bucket {0} succesfully created'.format(bucket_name))
+                    log.info(
+                        'Bucket {0} succesfully created'.format(bucket_name))
                 except botocore.exceptions.ClientError as e:
                     log.warning('Could not create bucket {0}: {1}'.format(
                         bucket_name, str(e)))
@@ -70,7 +72,8 @@ class BaseS3Uploader(object):
                 try:
                     bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
                         'LocationConstraint': self.region})
-                    log.info('Bucket {0} succesfully created'.format(bucket_name))
+                    log.info(
+                        'Bucket {0} succesfully created'.format(bucket_name))
                 except botocore.exceptions.ClientError as e:
                     log.warning('Could not create bucket {0}: {1}'.format(
                         bucket_name, str(e)))
@@ -101,21 +104,21 @@ class BaseS3Uploader(object):
                     Body=upload_file.read(), ACL='public-read')
                 log.info("Succesfully uploaded {0} to S3!".format(filepath))
             except Exception as e:
-                log.error('Something went very very wrong for {0}'.format(str(e)))
+                log.error(
+                    'Something went very very wrong for {0}'.format(str(e)))
                 raise e
 
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
-        s3 = boto3.resource(
-            's3', endpoint_url=self.host_name, config=botocore.client.Config(signature_version='s3v4'))
-        session = boto3.session.Session(aws_access_key_id=p_key,
-                                        aws_secret_access_key=s_key,
-                                        region_name=region)
+        session = boto3.session.Session(aws_access_key_id=self.p_key,
+                                        aws_secret_access_key=self.s_key,
+                                        region_name=self.region)
+        s3 = session.resource('s3', config=botocore.client.Config(
+                signature_version=self.signature))
         try:
-            obj = s3.Object(self.bucket_name, filepath)
-            s3.Object(self.bucket, obj.key).delete()
+            s3.Object(self.bucket_name, filepath).delete()
         except Exception as e:
-            raise e
+                raise e
 
 
 class S3Uploader(BaseS3Uploader):
