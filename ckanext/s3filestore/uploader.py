@@ -113,7 +113,7 @@ class BaseS3Uploader(object):
         session = boto3.session.Session(aws_access_key_id=self.p_key,
                                         aws_secret_access_key=self.s_key,
                                         region_name=self.region)
-        s3 = session.resource('s3', config=botocore.client.Config(
+        s3 = session.resource('s3', endpoint_url=self.host_name, config=botocore.client.Config(
                 signature_version=self.signature))
         try:
             s3.Object(self.bucket_name, filepath).delete()
