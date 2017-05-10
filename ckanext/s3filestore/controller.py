@@ -132,6 +132,9 @@ class S3Controller(base.BaseController):
     def uploaded_file_redirect(self, upload_to, filename):
         '''Redirect static file requests to their location on S3.'''
         host_name = config.get('ckanext.s3filestore.host_name')
+        # Remove last characted if it's a slash
+        if host_name[-1] == '/':
+            host_name = host_name[:-1]
         storage_path = S3Uploader.get_storage_path(upload_to)
         filepath = os.path.join(storage_path, filename)
         #host = config.get('ckanext.s3.filestore.hostname')
