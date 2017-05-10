@@ -131,13 +131,15 @@ class S3Controller(base.BaseController):
 
     def uploaded_file_redirect(self, upload_to, filename):
         '''Redirect static file requests to their location on S3.'''
+        host_name = config.get('ckanext.s3filestore.host_name')
         storage_path = S3Uploader.get_storage_path(upload_to)
         filepath = os.path.join(storage_path, filename)
         #host = config.get('ckanext.s3.filestore.hostname')
         # redirect_url = 'https://{bucket_name}.minio.omc.ckan.io/{filepath}' \
         #     .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
         #             filepath=filepath)
-        redirect_url = 'http://minio.omc.ckan.io/{bucket_name}/{filepath}'\
+        redirect_url = '{host_name}/{bucket_name}/{filepath}'\
                           .format(bucket_name=config.get('ckanext.s3filestore.aws_bucket_name'),
-                          filepath=filepath)
+                          filepath=filepath,
+                          host_name=host_name)
         redirect(redirect_url)
