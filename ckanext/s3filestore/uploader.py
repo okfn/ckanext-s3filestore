@@ -31,7 +31,7 @@ class BaseS3Uploader(object):
         self.p_key = config.get('ckanext.s3filestore.aws_access_key_id')
         self.s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
         self.region = config.get('ckanext.s3filestore.region_name')
-        self.signature = config.get('ckanext.s3filestore.sigranure_version')
+        self.signature = config.get('ckanext.s3filestore.signature_version')
         self.host_name = config.get('ckanext.s3filestore.host_name')
         self.bucket = self.get_s3_bucket(self.bucket_name)
 
