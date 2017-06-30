@@ -88,7 +88,7 @@ class S3Controller(base.BaseController):
 
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
-        redirect(rsc['url'])
+        redirect(str(rsc['url']))
 
     def filesystem_resource_download(self, id, resource_id, filename=None):
         """
@@ -127,7 +127,7 @@ class S3Controller(base.BaseController):
             return app_iter
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
-        redirect(rsc['url'])
+        redirect(str(rsc['url']))
 
     def uploaded_file_redirect(self, upload_to, filename):
         '''Redirect static file requests to their location on S3.'''
