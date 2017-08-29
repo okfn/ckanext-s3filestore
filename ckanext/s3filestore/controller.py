@@ -9,6 +9,7 @@ import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.uploader as uploader
 from ckan.common import _, request, c, response
+from botocore.exceptions import ClientError
 
 from ckanext.s3filestore.uploader import S3Uploader
 
@@ -55,22 +56,28 @@ class S3Controller(base.BaseController):
                 log.warn('Key \'{0}\' not found in bucket \'{1}\''
                          .format(key_path, bucket_name))
 
-                # attempt fallback
-                if config.get('ckanext.s3filestore.filesystem_download_fallback',
-                              False):
-                    log.info('Attempting filesystem fallback for resource {0}'
-                             .format(resource_id))
-                    url = toolkit.url_for(controller='ckanext.s3filestore.controller:S3Controller',
-                                          action='filesystem_resource_download',
-                                          id=id,
-                                          resource_id=resource_id,
-                                          filename=filename)
-                    redirect(url)
+            try:
+                obj = bucket.Object(key_path)
+                contents = str(obj.get()['Body'].read())
+            except ClientError as ex:
+                if ex.response['Error']['Code'] == 'NoSuchKey':
+                    # attempt fallback
+                    if config.get(
+                            'ckanext.s3filestore.filesystem_download_fallback',
+                            False):
+                        log.info('Attempting filesystem fallback for resource {0}'
+                                 .format(resource_id))
+                        url = toolkit.url_for(
+                            controller='ckanext.s3filestore.controller:S3Controller',
+                            action='filesystem_resource_download',
+                            id=id,
+                            resource_id=resource_id,
+                            filename=filename)
+                        redirect(url)
 
-                abort(404, _('Resource data not found'))
-
-            obj = bucket.Object(key_path)
-            contents = str(obj.get()['Body'].read())
+                    abort(404, _('Resource data not found'))
+                else:
+                    raise ex
 
             dataapp = paste.fileapp.DataApp(contents)
 
