@@ -57,7 +57,7 @@ class S3FileApp(DataApp):
             return [b'']
         return _S3ResponseIter(
             self.s3_object.get(
-                Range="bytes=%d-" % (lower)), content_length)
+                Range="bytes=%d-%d" % (lower, lower + content_length - 1)), content_length)
 
 
 class _S3ResponseIter(object):
