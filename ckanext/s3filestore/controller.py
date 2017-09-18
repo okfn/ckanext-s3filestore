@@ -85,20 +85,12 @@ class S3Controller(base.BaseController):
 
                 abort(404, _('Resource data not found'))
 
-            s3app = S3FileApp(key)
-
-            try:
-                status, headers, app_iter = request.call_application(s3app)
-            except OSError:
-                abort(404, _('Resource data not found'))
-
-            response.headers.update(dict(headers))
-            response.status = status
+            extra_headers = []
             content_type, x = mimetypes.guess_type(rsc.get('url', ''))
             if content_type:
-                response.headers['Content-Type'] = content_type
-            return app_iter
-
+                extra_headers.append(('Content-Type', content_type))
+            s3app = S3FileApp(key, headers=extra_headers)
+            return s3app(request.environ, self.start_response)
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])

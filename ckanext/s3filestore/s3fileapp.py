@@ -35,6 +35,7 @@ class S3FileApp(DataApp):
         self.last_modified = time.mktime(self.s3_object.last_modified.timetuple())
         self.content_length = self.s3_object.content_length
         self.content_encoding = self.s3_object.content_encoding
+        LAST_MODIFIED.update(self.headers, time=self.last_modified)
 
     def calculate_etag(self):
         return self.s3_object.e_tag
@@ -56,24 +57,26 @@ class S3FileApp(DataApp):
             return [b'']
         return _S3ResponseIter(
             self.s3_object.get(
-                Range="bytes=%d-" % (lower)))
+                Range="bytes=%d-" % (lower)), content_length)
 
 
 class _S3ResponseIter(object):
 
-    def __init__(self, response):
-        self.response = response
-        self.body = self.response['Body']
+    def __init__(self, s3_response, size):
+        self.s3_body = s3_response['Body']
+        self.size = size
 
     def __iter__(self):
         return self
 
     def next(self):
-        data = self.body.read(BLOCK_SIZE)
+        chunk_size = min([BLOCK_SIZE, self.size])
+        data = self.s3_body.read(chunk_size)
+        self.size -= chunk_size
         if len(data) == 0:
             raise StopIteration
         return data
     __next__ = next
 
     def close(self):
-        self.body.close()
+        self.s3_body.close()
