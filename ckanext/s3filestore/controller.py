@@ -1,4 +1,5 @@
 import os
+import botocore
 import mimetypes
 import paste.fileapp
 import pylons.config as config
@@ -9,6 +10,7 @@ import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.uploader as uploader
 from ckan.common import _, request, c, response
+from .s3fileapp import S3FileApp
 
 from ckanext.s3filestore.uploader import S3Uploader
 
@@ -50,11 +52,22 @@ class S3Controller(base.BaseController):
             key_path = upload.get_path(rsc['id'], filename)
 
             try:
-                key = bucket.get_key(key_path)
+                key = bucket.Object(key_path)
             except Exception as e:
                 raise e
 
-            if key is None:
+            exists = False
+            try:
+                key.load()
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == "404":
+                    exists = False
+                else:
+                    raise e
+            else:
+                exists = True
+
+            if not exists:
                 log.warn('Key \'{0}\' not found in bucket \'{1}\''
                          .format(key_path, bucket_name))
 
@@ -71,23 +84,13 @@ class S3Controller(base.BaseController):
                     redirect(url)
 
                 abort(404, _('Resource data not found'))
-            contents = key.get_contents_as_string()
-            key.close()
 
-            dataapp = paste.fileapp.DataApp(contents)
-
-            try:
-                status, headers, app_iter = request.call_application(dataapp)
-            except OSError:
-                abort(404, _('Resource data not found'))
-
-            response.headers.update(dict(headers))
-            response.status = status
+            extra_headers = []
             content_type, x = mimetypes.guess_type(rsc.get('url', ''))
             if content_type:
-                response.headers['Content-Type'] = content_type
-            return app_iter
-
+                extra_headers.append(('Content-Type', content_type))
+            s3app = S3FileApp(key, headers=extra_headers)
+            return s3app(request.environ, self.start_response)
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])

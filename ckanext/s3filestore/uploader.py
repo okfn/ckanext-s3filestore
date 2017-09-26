@@ -5,7 +5,7 @@ import logging
 import datetime
 import mimetypes
 
-import boto
+import boto3
 
 import ckan.model as model
 import ckan.lib.munge as munge
@@ -38,58 +38,23 @@ class BaseS3Uploader(object):
         s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
 
         # make s3 connection
-        S3_conn = boto.connect_s3(p_key, s_key)
-
-        # make sure bucket exists and that we can access
-        try:
-            bucket = S3_conn.get_bucket(bucket_name)
-        except boto.exception.S3ResponseError as e:
-            if e.status == 404:
-                log.warning('Bucket {0} could not be found, ' +
-                            'attempting to create it...'.format(bucket_name))
-                try:
-                    bucket = S3_conn.create_bucket(bucket_name)
-                except (boto.exception.S3CreateError,
-                        boto.exception.S3ResponseError) as e:
-                    raise S3FileStoreException(
-                        'Could not create bucket {0}: {1}'.format(bucket_name,
-                                                                  str(e)))
-            elif e.status == 403:
-                raise S3FileStoreException(
-                    'Access to bucket {0} denied'.format(bucket_name))
-            else:
-                raise
-
-        return bucket
+        session = boto3.Session(aws_access_key_id=p_key, aws_secret_access_key=s_key)
+        s3 = session.resource('s3')
+        return s3.Bucket(bucket_name)
 
     def upload_to_key(self, filepath, upload_file, make_public=False):
         '''Uploads the `upload_file` to `filepath` on `self.bucket`.'''
         upload_file.seek(0)
         content_type, x = mimetypes.guess_type(filepath)
-        headers = {}
+        extra_args = {}
         if content_type:
-            headers.update({'Content-Type': content_type})
-        k = boto.s3.key.Key(self.bucket)
-        try:
-            k.key = filepath
-            k.set_contents_from_file(upload_file, headers=headers)
-            if make_public:
-                k.make_public()
-        except Exception as e:
-            raise e
-        finally:
-            k.close()
+            extra_args['ContentType'] = content_type
+        # streaming, parallel, multi-part upload
+        self.bucket.upload_fileobj(upload_file, filepath, ExtraArgs=extra_args)
 
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
-        k = boto.s3.key.Key(self.bucket)
-        try:
-            k.key = filepath
-            k.delete()
-        except Exception as e:
-            raise e
-        finally:
-            k.close()
+        self.bucket.Object(filepath).delete()
 
 
 class S3Uploader(BaseS3Uploader):
