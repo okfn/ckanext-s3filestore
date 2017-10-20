@@ -232,6 +232,7 @@ class S3ResourceUploader(BaseS3Uploader):
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
+            resource['last_modified'] = datetime.datetime.utcnow()
             self.upload_file = upload_field_storage.file
         elif self.clear and resource.get('id'):
             # New, not yet created resources can be marked for deletion if the
