@@ -65,7 +65,8 @@ class S3Controller(base.BaseController):
                 client = s3.client(service_name='s3', endpoint_url=host_name)
                 url = client.generate_presigned_url(ClientMethod='get_object',
                                                     Params={'Bucket': bucket.name,
-                                                            'Key': key_path})
+                                                            'Key': key_path},
+                                                    ExpiresIn=60)
                 redirect(url)
 
             except ClientError as ex:
