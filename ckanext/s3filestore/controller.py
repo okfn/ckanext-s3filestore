@@ -8,7 +8,7 @@ import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.uploader as uploader
-from ckan.common import _, request, c, response, streaming_response
+from ckan.common import _, request, c, response
 from botocore.exceptions import ClientError
 
 from ckanext.s3filestore.uploader import S3Uploader
