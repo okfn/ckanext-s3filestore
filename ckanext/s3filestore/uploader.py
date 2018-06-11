@@ -39,15 +39,19 @@ class BaseS3Uploader(object):
         directory = os.path.join(storage_path, id)
         return directory
 
+    def get_s3_session(self):
+        return boto3.session.Session(aws_access_key_id=self.p_key,
+                                     aws_secret_access_key=self.s_key,
+                                     region_name=self.region)
+
     def get_s3_bucket(self, bucket_name):
         '''Return a boto bucket, creating it if it doesn't exist.'''
 
         # make s3 connection using boto3
-        session = boto3.session.Session(aws_access_key_id=self.p_key,
-                                        aws_secret_access_key=self.s_key,
-                                        region_name=self.region)
-        s3 = session.resource('s3', endpoint_url=self.host_name,
-                              config=botocore.client.Config(signature_version=self.signature))
+
+        s3 = self.get_s3_session().resource('s3', endpoint_url=self.host_name,
+                                            config=botocore.client.Config(
+                                             signature_version=self.signature))
         bucket = s3.Bucket(bucket_name)
         try:
             if s3.Bucket(bucket.name) in s3.buckets.all():
@@ -55,7 +59,8 @@ class BaseS3Uploader(object):
 
             else:
                 log.warning(
-                    'Bucket {0} could not be found, attempting to create it...'.format(bucket_name))
+                    'Bucket {0} could not be found,\
+                    attempting to create it...'.format(bucket_name))
                 try:
                     bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
                         'LocationConstraint': 'us-east-1'})
