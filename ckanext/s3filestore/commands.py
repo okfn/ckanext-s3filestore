@@ -29,7 +29,8 @@ class TestConnection(toolkit.CkanCommand):
         exit = False
         for key in ('ckanext.s3filestore.aws_access_key_id',
                     'ckanext.s3filestore.aws_secret_access_key',
-                    'ckanext.s3filestore.aws_bucket_name'):
+                    'ckanext.s3filestore.aws_bucket_name',
+                    'ckanext.s3filestore.aws_endpoint'):
             if not config.get(key):
                 print 'You must set the "{0}" option in your ini file'.format(
                     key)
@@ -41,8 +42,9 @@ class TestConnection(toolkit.CkanCommand):
         bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
         public_key = config.get('ckanext.s3filestore.aws_access_key_id')
         secret_key = config.get('ckanext.s3filestore.aws_secret_access_key')
+        endpoint = config.get('ckanext.s3filestore.aws_endpoint')
 
-        S3_conn = boto.connect_s3(public_key, secret_key)
+        S3_conn = boto.connect_s3(public_key, secret_key, host=endpoint)
 
         # Check if bucket exists
         bucket = S3_conn.lookup(bucket_name)
