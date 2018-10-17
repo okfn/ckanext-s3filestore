@@ -5,17 +5,30 @@ import datetime
 
 import boto3
 import botocore
-from ckantoolkit import config
+import ckantoolkit as toolkit
+
 
 import ckan.model as model
 import ckan.lib.munge as munge
 
+if toolkit.check_ckan_version(min_version='2.7.0'):
+    from werkzeug.datastructures import FileStorage as FlaskFileStorage
+    ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
+else:
+    ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage)
 
+config = toolkit.config
 log = logging.getLogger(__name__)
 
 _storage_path = None
 _max_resource_size = None
 _max_image_size = None
+
+
+def _get_underlying_file(wrapper):
+    if isinstance(wrapper, FlaskFileStorage):
+        return wrapper.stream
+    return wrapper.file
 
 
 class S3FileStoreException(Exception):
@@ -163,6 +176,7 @@ class S3Uploader(BaseS3Uploader):
         to be deleted.
         '''
 
+        import ipdb; ipdb.set_trace()
         self.url = data_dict.get(url_field, '')
         self.clear = data_dict.pop(clear_field, None)
         self.file_field = file_field
@@ -170,14 +184,13 @@ class S3Uploader(BaseS3Uploader):
 
         if not self.storage_path:
             return
-
-        if hasattr(self.upload_field_storage, 'filename'):
+        if isinstance(self.upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filename = self.upload_field_storage.filename
             self.filename = str(datetime.datetime.utcnow()) + self.filename
             self.filename = munge.munge_filename_legacy(self.filename)
             self.filepath = os.path.join(self.storage_path, self.filename)
             data_dict[url_field] = self.filename
-            self.upload_file = self.upload_field_storage.file
+            self.upload_file = _get_underlying_file(self.upload_field_storage)
         # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
             if not self.clear:
@@ -192,7 +205,7 @@ class S3Uploader(BaseS3Uploader):
         validated and flushed to the db. This is so we do not store anything
         unless the request is actually good. max_size is size in MB maximum of
         the file'''
-
+        import ipdb; ipdb.set_trace()
         # If a filename has been provided (a file is being uploaded) write the
         # file to the appropriate key in the AWS bucket.
         if self.filename:
@@ -230,13 +243,13 @@ class S3ResourceUploader(BaseS3Uploader):
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
-        if isinstance(upload_field_storage, cgi.FieldStorage):
+        if isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filename = upload_field_storage.filename
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
-            self.upload_file = upload_field_storage.file
+            self.upload_file = _get_underlying_file(upload_field_storage)
         elif self.clear and resource.get('id'):
             # New, not yet created resources can be marked for deletion if the
             # users cancels an upload and enters a URL instead.
