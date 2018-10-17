@@ -10,6 +10,8 @@ env:
     - CKAN_BRANCH=dev-v2.7
     - CKAN_BRANCH=dev-v2.6
     - CKAN_BRANCH=release-v2.5-latest
+before_install:
+    - export BOTO_CONFIG=/dev/null
 install:
     - bash bin/travis-build.bash
     - pip install coveralls -U
