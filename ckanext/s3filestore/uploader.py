@@ -176,7 +176,6 @@ class S3Uploader(BaseS3Uploader):
         to be deleted.
         '''
 
-        import ipdb; ipdb.set_trace()
         self.url = data_dict.get(url_field, '')
         self.clear = data_dict.pop(clear_field, None)
         self.file_field = file_field
@@ -205,7 +204,7 @@ class S3Uploader(BaseS3Uploader):
         validated and flushed to the db. This is so we do not store anything
         unless the request is actually good. max_size is size in MB maximum of
         the file'''
-        import ipdb; ipdb.set_trace()
+
         # If a filename has been provided (a file is being uploaded) write the
         # file to the appropriate key in the AWS bucket.
         if self.filename:
