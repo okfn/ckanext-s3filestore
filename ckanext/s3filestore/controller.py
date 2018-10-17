@@ -1,9 +1,9 @@
 import os
 import mimetypes
 import paste.fileapp
-import pylons.config as config
+from ckantoolkit import config
 
-import ckan.plugins.toolkit as toolkit
+import ckantoolkit as toolkit
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.model as model

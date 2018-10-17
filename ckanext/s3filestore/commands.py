@@ -1,7 +1,7 @@
 import sys
 import boto
-from pylons import config
-from ckan.plugins import toolkit
+from ckantoolkit import config
+import ckantoolkit as toolkit
 
 
 class TestConnection(toolkit.CkanCommand):
