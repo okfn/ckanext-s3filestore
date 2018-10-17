@@ -1,18 +1,16 @@
 import os
 import cgi
-import pylons
 import logging
 import datetime
-import mimetypes
 
 import boto3
 import botocore
+from ckantoolkit import config
 
 import ckan.model as model
 import ckan.lib.munge as munge
 
 
-config = pylons.config
 log = logging.getLogger(__name__)
 
 _storage_path = None

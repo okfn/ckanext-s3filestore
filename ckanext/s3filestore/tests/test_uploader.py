@@ -7,12 +7,12 @@ from nose.tools import (assert_equal,
                         assert_false)
 
 import ckanapi
-import pylons.config as config
+from ckantoolkit import config
 import boto
 from moto import mock_s3
 from webtest import Upload
 
-import ckan.plugins.toolkit as toolkit
+import ckantoolkit as toolkit
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
