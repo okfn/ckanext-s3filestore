@@ -1,13 +1,23 @@
 language: python
 python:
     - "2.7"
+dist: trusty
+group: deprecated-2017Q4
+
 env:
-    - PGVERSION=9.1 CKAN_BRANCH=master
-    - PGVERSION=9.1 CKAN_BRANCH=release-v2.5.1
+    - CKAN_BRANCH=master
+    - CKAN_BRANCH=dev-v2.8
+    - CKAN_BRANCH=dev-v2.7
+    - CKAN_BRANCH=dev-v2.6
+    - CKAN_BRANCH=release-v2.5-latest
 install:
     - bash bin/travis-build.bash
     - pip install coveralls -U
 script: sh bin/travis-run.sh
+services:
+    - redis-server
+    - postgresql
+
 after_success:
     - coveralls
 sudo: required
