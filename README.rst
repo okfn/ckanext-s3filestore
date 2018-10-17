@@ -16,7 +16,7 @@ ckanext-s3filestore
 
 .. Put a description of your extension here:
 
-Use Amazon S3 as a filestore for resources.
+Use Amazon S3 or Minio<https://minio.io/> as a filestore for resources.
 
 
 ------------
@@ -59,9 +59,12 @@ Config Settings
 
 Required::
 
-    ckanext.s3filestore.aws_access_key_id = Your-AWS-Access-Key-ID
-    ckanext.s3filestore.aws_secret_access_key = Your-AWS-Secret-Access-Key
+    ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
+    ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
     ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
+    ckanext.s3filestore.host_name = host-to-S3-cloud storage 
+    ckanext.s3filestore.region_name= region-name
+    ckanext.s3filestore.signature_version = signature (s3v4)
 
 Optional::
 
