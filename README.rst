@@ -59,12 +59,20 @@ Config Settings
 
 Required::
 
-    ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
-    ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
+
     ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
     ckanext.s3filestore.host_name = host-to-S3-cloud storage 
-    ckanext.s3filestore.region_name= region-name
+    ckanext.s3filestore.region_name = region-name
     ckanext.s3filestore.signature_version = signature (s3v4)
+
+Conditional:
+
+   ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
+   ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
+
+   Or:
+
+   ckanext.s3filestore.aws_use_ami_role = true
 
 Optional::
 
@@ -75,6 +83,9 @@ Optional::
     ckanext.s3filestore.filesystem_download_fallback = true
     # The ckan storage path option must also be set correctly for the fallback to work
     ckan.storage_path = path/to/storage/directory
+
+    # To change the acl of the uploaded file. Default is public-read.
+    ckanext.s3filestore.acl = private
 
 
 ------------------------
