@@ -84,6 +84,9 @@ Optional::
     # The ckan storage path option must also be set correctly for the fallback to work
     ckan.storage_path = path/to/storage/directory
 
+    # To change the acl of the uploaded file. Default is public-read.
+    ckanext.s3filestore.acl = private
+
 
 ------------------------
 Development Installation
