@@ -62,11 +62,13 @@ Required::
     ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
     ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
     ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
-    ckanext.s3filestore.host_name = host-to-S3-cloud storage 
-    ckanext.s3filestore.region_name= region-name
+    ckanext.s3filestore.region_name = region-name
     ckanext.s3filestore.signature_version = signature (s3v4)
 
 Optional::
+
+    # required only when using Minio or a custom Amazon S3 endpoint
+    ckanext.s3filestore.host_name = host-to-S3-cloud storage
 
     # An optional path to prepend to keys
     ckanext.s3filestore.aws_storage_path = my-site-name
@@ -75,6 +77,51 @@ Optional::
     ckanext.s3filestore.filesystem_download_fallback = true
     # The ckan storage path option must also be set correctly for the fallback to work
     ckan.storage_path = path/to/storage/directory
+
+    # access to bucket is checked on startup, disable it by setting to false
+    ckanext.s3filestore.check_access_on_startup = false
+
+    # bucket is created if not exists, disable this feature by setting to false
+    ckanext.s3filestore.create_if_not_exists = false
+
+
+-----------------------
+Amazon S3 Usage Example
+-----------------------
+
+You should have an AWS S3 regional bucket and an access key / secret attached to a user with the following IAM policy (replace BUCKET_NAME with your bucket name)::
+
+   {
+       "Version": "2012-10-17",
+       "Statement": [
+           {
+               "Sid": "statement1",
+               "Effect": "Allow",
+               "Action": [
+                   "s3:GetBucketLocation",
+                   "s3:HeadBucket",
+                   "s3:ListBucket",
+                   "s3:GetObject",
+                   "s3:PutObject",
+                   "s3:PutObjectAcl"
+               ],
+               "Resource": [
+                   "arn:aws:s3:::BUCKET_NAME",
+                   "arn:aws:s3:::BUCKET_NAME/*"
+               ]
+           }
+       ]
+   }
+
+config settings::
+
+    ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
+    ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
+    ckanext.s3filestore.aws_bucket_name = Your-Bucket-Name
+    ckanext.s3filestore.region_name = region-name
+    ckanext.s3filestore.signature_version = s3v4
+    ckanext.s3filestore.check_access_on_startup = false
+    ckanext.s3filestore.create_if_not_exists = false
 
 
 ------------------------

@@ -11,7 +11,7 @@ import ckan.lib.uploader as uploader
 from ckan.common import _, request, c, response
 from botocore.exceptions import ClientError
 
-from ckanext.s3filestore.uploader import S3Uploader
+from ckanext.s3filestore.uploader import S3Uploader, get_host_name
 import webob
 
 import logging
@@ -45,9 +45,11 @@ class S3Controller(base.BaseController):
         if rsc.get('url_type') == 'upload':
             upload = uploader.get_resource_uploader(rsc)
             bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
-            region = config.get('ckanext.s3filestore.region_name')
-            host_name = config.get('ckanext.s3filestore.host_name')
-            bucket = upload.get_s3_bucket(bucket_name)
+            host_name = get_host_name(
+                config.get('ckanext.s3filestore.host_name'),
+                config.get('ckanext.s3filestore.region_name'))
+            bucket = upload.get_s3_bucket(bucket_name, toolkit.asbool(config.get(
+                'ckanext.s3filestore.create_if_not_exists', True)))
 
             if filename is None:
                 filename = os.path.basename(rsc['url'])
@@ -130,7 +132,9 @@ class S3Controller(base.BaseController):
 
     def uploaded_file_redirect(self, upload_to, filename):
         '''Redirect static file requests to their location on S3.'''
-        host_name = config.get('ckanext.s3filestore.host_name')
+        host_name = get_host_name(
+            config.get('ckanext.s3filestore.host_name'),
+            config.get('ckanext.s3filestore.region_name'))
         # Remove last characted if it's a slash
         if host_name[-1] == '/':
             host_name = host_name[:-1]
