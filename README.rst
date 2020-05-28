@@ -103,7 +103,8 @@ You should have an AWS S3 regional bucket and an access key / secret attached to
                    "s3:ListBucket",
                    "s3:GetObject",
                    "s3:PutObject",
-                   "s3:PutObjectAcl"
+                   "s3:PutObjectAcl",
+                   "s3:DeleteObject"
                ],
                "Resource": [
                    "arn:aws:s3:::BUCKET_NAME",
