@@ -28,7 +28,6 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
             'ckanext.s3filestore.aws_bucket_name',
             'ckanext.s3filestore.region_name',
             'ckanext.s3filestore.signature_version',
-            'ckanext.s3filestore.host_name'
         )
         for option in config_options:
             if not config.get(option, None):
@@ -39,7 +38,9 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
                 config.get('ckanext.s3filestore.check_access_on_startup',
                            True)):
             ckanext.s3filestore.uploader.BaseS3Uploader().get_s3_bucket(
-                config.get('ckanext.s3filestore.aws_bucket_name'))
+                config.get('ckanext.s3filestore.aws_bucket_name'),
+                toolkit.asbool(config.get('ckanext.s3filestore.create_if_not_exists', True))
+            )
 
     # IUploader
 

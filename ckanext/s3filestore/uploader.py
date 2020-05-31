@@ -32,6 +32,13 @@ def _get_underlying_file(wrapper):
     return wrapper.file
 
 
+def get_host_name(host_name, region_name):
+    if host_name:
+        return host_name
+    else:
+        return 'https://s3-{}.amazonaws.com'.format(region_name)
+
+
 class S3FileStoreException(Exception):
     pass
 
@@ -44,8 +51,12 @@ class BaseS3Uploader(object):
         self.s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
         self.region = config.get('ckanext.s3filestore.region_name')
         self.signature = config.get('ckanext.s3filestore.signature_version')
-        self.host_name = config.get('ckanext.s3filestore.host_name')
-        self.bucket = self.get_s3_bucket(self.bucket_name)
+        self.host_name = get_host_name(
+            config.get('ckanext.s3filestore.host_name'),
+            config.get('ckanext.s3filestore.region_name'))
+        self.create_if_not_exists = toolkit.asbool(config.get(
+            'ckanext.s3filestore.create_if_not_exists', True))
+        self.bucket = self.get_s3_bucket(self.bucket_name, self.create_if_not_exists)
 
     def get_directory(self, id, storage_path):
         directory = os.path.join(storage_path, id)
@@ -56,7 +67,7 @@ class BaseS3Uploader(object):
                                      aws_secret_access_key=self.s_key,
                                      region_name=self.region)
 
-    def get_s3_bucket(self, bucket_name):
+    def get_s3_bucket(self, bucket_name, create_if_not_exists=True):
         '''Return a boto bucket, creating it if it doesn't exist.'''
 
         # make s3 connection using boto3
@@ -65,6 +76,8 @@ class BaseS3Uploader(object):
                                             config=botocore.client.Config(
                                              signature_version=self.signature))
         bucket = s3.Bucket(bucket_name)
+        if not create_if_not_exists:
+            return bucket
         try:
             if s3.Bucket(bucket.name) in s3.buckets.all():
                 log.info('Bucket {0} found!'.format(bucket_name))
