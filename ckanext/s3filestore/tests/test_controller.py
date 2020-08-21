@@ -2,7 +2,7 @@ import os
 
 from nose.tools import (assert_equal,
                         assert_true)
-import pylons.config as config
+from ckantoolkit import config
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories

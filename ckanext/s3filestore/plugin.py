@@ -1,6 +1,6 @@
 from routes.mapper import SubMapper
 import ckan.plugins as plugins
-import ckan.plugins.toolkit as toolkit
+import ckantoolkit as toolkit
 
 import ckanext.s3filestore.uploader
 
