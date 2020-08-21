@@ -45,6 +45,7 @@ class BaseS3Uploader(object):
         self.region = config.get('ckanext.s3filestore.region_name')
         self.signature = config.get('ckanext.s3filestore.signature_version')
         self.host_name = config.get('ckanext.s3filestore.host_name')
+        self.acl = config.get('ckanext.s3filestore.acl', 'public-read')
         self.bucket = self.get_s3_bucket(self.bucket_name)
 
     def get_directory(self, id, storage_path):
@@ -114,7 +115,7 @@ class BaseS3Uploader(object):
                               config=botocore.client.Config(signature_version=self.signature))
         try:
             s3.Object(self.bucket_name, filepath).put(
-                Body=upload_file.read(), ACL='public-read',
+                Body=upload_file.read(), ACL=self.acl,
                 ContentType=getattr(self, 'mimetype', None))
             log.info("Succesfully uploaded {0} to S3!".format(filepath))
         except Exception as e:
