@@ -189,6 +189,7 @@ class S3Uploader(BaseS3Uploader):
             self.filename = self.upload_field_storage.filename
             self.filename = str(datetime.datetime.utcnow()) + self.filename
             self.filename = munge.munge_filename_legacy(self.filename)
+            self.mimetype = mimetypes.guess_type(self.filename, strict=False)[0]
             self.filepath = os.path.join(self.storage_path, self.filename)
             data_dict[url_field] = self.filename
             self.upload_file = _get_underlying_file(self.upload_field_storage)
