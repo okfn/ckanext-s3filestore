@@ -79,6 +79,9 @@ Optional::
     # An optional setting to change the acl of the uploaded files. Default public-read.
     ckanext.s3filestore.acl = private
 
+    # An optional setting to specify which addressing style to use. This controls whether the bucket name is in the hostname or is part of the URL. Default auto.
+    ckanext.s3filestore.addressing_style = path
+
 
 ------------------------
 Development Installation

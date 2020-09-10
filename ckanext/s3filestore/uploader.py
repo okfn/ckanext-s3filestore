@@ -46,6 +46,8 @@ class BaseS3Uploader(object):
         self.signature = config.get('ckanext.s3filestore.signature_version')
         self.host_name = config.get('ckanext.s3filestore.host_name')
         self.acl = config.get('ckanext.s3filestore.acl', 'public-read')
+        self.addressing_style = config.get('ckanext.s3filestore.addressing_style',
+                                           'auto')
         self.bucket = self.get_s3_bucket(self.bucket_name)
 
     def get_directory(self, id, storage_path):
@@ -62,9 +64,12 @@ class BaseS3Uploader(object):
 
         # make s3 connection using boto3
 
-        s3 = self.get_s3_session().resource('s3', endpoint_url=self.host_name,
+        s3 = self.get_s3_session().resource('s3',
+                                            endpoint_url=self.host_name,
                                             config=botocore.client.Config(
-                                             signature_version=self.signature))
+                                                signature_version=self.signature,
+                                                s3={'addressing_style': self.addressing_style}
+                                            ))
         bucket = s3.Bucket(bucket_name)
         try:
             if s3.Bucket(bucket.name) in s3.buckets.all():
@@ -112,11 +117,12 @@ class BaseS3Uploader(object):
                                         aws_secret_access_key=self.s_key,
                                         region_name=self.region)
         s3 = session.resource('s3', endpoint_url=self.host_name,
-                              config=botocore.client.Config(signature_version=self.signature))
+                              config=botocore.client.Config(signature_version=self.signature,
+                                                            s3={'addressing_style': self.addressing_style}))
         try:
             s3.Object(self.bucket_name, filepath).put(
                 Body=upload_file.read(), ACL=self.acl,
-                ContentType=getattr(self, 'mimetype', None))
+                ContentType=getattr(self, 'mimetype', ''))
             log.info("Succesfully uploaded {0} to S3!".format(filepath))
         except Exception as e:
             log.error('Something went very very wrong for {0}'.format(str(e)))
@@ -125,10 +131,12 @@ class BaseS3Uploader(object):
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
         session = boto3.session.Session(aws_access_key_id=self.p_key,
-                                    aws_secret_access_key=self.s_key,
-                                    region_name=self.region)
-        s3 = session.resource('s3', endpoint_url=self.host_name, config=botocore.client.Config(
-                             signature_version=self.signature))
+                                        aws_secret_access_key=self.s_key,
+                                        region_name=self.region)
+        s3 = session.resource('s3', endpoint_url=self.host_name,
+                              config=botocore.client.Config(
+                                  signature_version=self.signature,
+                                  s3={'addressing_style': self.addressing_style}))
         try:
             s3.Object(self.bucket_name, filepath).delete()
         except Exception as e:
