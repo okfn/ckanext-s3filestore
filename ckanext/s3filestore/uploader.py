@@ -120,9 +120,10 @@ class BaseS3Uploader(object):
                               config=botocore.client.Config(signature_version=self.signature,
                                                             s3={'addressing_style': self.addressing_style}))
         try:
+
             s3.Object(self.bucket_name, filepath).put(
                 Body=upload_file.read(), ACL='public-read' if make_public else self.acl,
-                ContentType=getattr(self, 'mimetype', ''))
+                ContentType=getattr(self, 'mimetype', '') or 'text/plain')
             log.info("Succesfully uploaded {0} to S3!".format(filepath))
         except Exception as e:
             log.error('Something went very very wrong for {0}'.format(str(e)))
