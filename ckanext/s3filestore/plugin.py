@@ -3,15 +3,21 @@ import ckan.plugins as plugins
 import ckantoolkit as toolkit
 
 import ckanext.s3filestore.uploader
+import ckanext.s3filestore.views.resource as rs_view
+import ckanext.s3filestore.views.statics as st_view
 
 
 class S3FileStorePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IConfigurable)
     plugins.implements(plugins.IUploader)
-    plugins.implements(plugins.IRoutes, inherit=True)
 
-    # IConfigurer
+    if plugins.toolkit.check_ckan_version(min_version='2.8.0'):
+        plugins.implements(plugins.IBlueprint)
+    else:
+        plugins.implements(plugins.IRoutes, inherit=True)
+
+        # IConfigurer
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
@@ -74,3 +80,9 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
                       action='uploaded_file_redirect')
 
         return map
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        blueprints = rs_view.get_blueprints() + st_view.get_blueprints()
+        return blueprints
