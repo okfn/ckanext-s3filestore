@@ -59,6 +59,7 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
                                                        old_filename)
 
     # IRoutes
+    # Ignored on CKAN >= 2.8
 
     def before_map(self, map):
         with SubMapper(map, controller='ckanext.s3filestore.controller:S3Controller') as m:
@@ -82,6 +83,7 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
         return map
 
     # IBlueprint
+    # Ignored on CKAN < 2.8
 
     def get_blueprint(self):
         blueprints = rs_view.get_blueprints() + st_view.get_blueprints()
