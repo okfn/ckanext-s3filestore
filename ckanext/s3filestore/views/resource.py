@@ -45,9 +45,9 @@ def resource_download(package_type, id, resource_id, filename=None):
         rsc = get_action('resource_show')(context, {'id': resource_id})
         get_action('package_show')(context, {'id': id})
     except NotFound:
-        abort(404, _('Resource not found'))
+        return abort(404, _('Resource not found'))
     except NotAuthorized:
-        abort(401, _('Unauthorized to read resource %s') % id)
+        return abort(401, _('Unauthorized to read resource %s') % id)
 
     if rsc.get('url_type') == 'upload':
 
@@ -80,7 +80,6 @@ def resource_download(package_type, id, resource_id, filename=None):
                                                 Params={'Bucket': bucket.name,
                                                         'Key': key_path},
                                                 ExpiresIn=60)
-            res = redirect(url)
             return redirect(url)
 
         except ClientError as ex:
@@ -98,7 +97,7 @@ def resource_download(package_type, id, resource_id, filename=None):
                         filename=filename)
                     return redirect(url)
 
-                abort(404, _('Resource data not found'))
+                return abort(404, _('Resource data not found'))
             else:
                 raise ex
 
@@ -123,14 +122,14 @@ def filesystem_resource_download(package_type, id, resource_id, filename=None):
         rsc = get_action(u'resource_show')(context, {u'id': resource_id})
         get_action(u'package_show')(context, {u'id': id})
     except (NotFound, NotAuthorized):
-        return base.abort(404, _(u'Resource not found'))
+        return abort(404, _(u'Resource not found'))
 
     if rsc.get(u'url_type') == u'upload':
         upload = uploader.get_resource_uploader(rsc)
         filepath = upload.get_path(rsc[u'id'])
         return flask.send_file(filepath)
     elif u'url' not in rsc:
-        return base.abort(404, _(u'No download is available'))
+        return abort(404, _(u'No download is available'))
     return redirect(rsc[u'url'])
 
 

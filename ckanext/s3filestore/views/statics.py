@@ -14,8 +14,8 @@ Blueprint = flask.Blueprint
 redirect = toolkit.redirect_to
 log = logging.getLogger(__name__)
 
-s3_static = Blueprint(
-    u's3_static',
+s3_statics = Blueprint(
+    u's3_statics',
     __name__
 )
 
@@ -39,8 +39,8 @@ def uploaded_file_redirect(upload_to, filename):
     return redirect(redirect_url)
 
 
-s3_static.add_url_rule(u'/uploads/<upload_to>/<filename>', view_func=uploaded_file_redirect)
+s3_statics.add_url_rule(u'/uploads/<upload_to>/<filename>', view_func=uploaded_file_redirect)
 
 
 def get_blueprints():
-    return [s3_static]
+    return [s3_statics]
