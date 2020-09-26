@@ -13,6 +13,8 @@ import ckantoolkit as toolkit
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.uploader as uploader
+from ckan.lib.uploader import get_storage_path
+
 import ckan.model as model
 
 log = logging.getLogger(__name__)
@@ -76,14 +78,19 @@ def resource_download(package_type, id, resource_id, filename=None):
                                config=Config(signature_version=signature,
                                              s3={'addressing_style': addressing_style}),
                                region_name=region)
+
+            client.head_object(Bucket=bucket.name, Key=key_path)
+
             url = client.generate_presigned_url(ClientMethod='get_object',
                                                 Params={'Bucket': bucket.name,
                                                         'Key': key_path},
                                                 ExpiresIn=60)
+
             return redirect(url)
 
         except ClientError as ex:
-            if ex.response['Error']['Code'] == 'NoSuchKey':
+            print(ex.response['Error']['Code'])
+            if ex.response['Error']['Code'] == 'NoSuchKey' or '404':
                 # attempt fallback
                 if ckan_config.get(
                         'ckanext.s3filestore.filesystem_download_fallback',
@@ -125,8 +132,11 @@ def filesystem_resource_download(package_type, id, resource_id, filename=None):
         return abort(404, _(u'Resource not found'))
 
     if rsc.get(u'url_type') == u'upload':
-        upload = uploader.get_resource_uploader(rsc)
-        filepath = upload.get_path(rsc[u'id'])
+        path = get_storage_path()
+        storage_path = os.path.join(path, 'resources')
+        directory = os.path.join(storage_path,
+                                 resource_id[0:3], resource_id[3:6])
+        filepath = os.path.join(directory, resource_id[6:])
         return flask.send_file(filepath)
     elif u'url' not in rsc:
         return abort(404, _(u'No download is available'))

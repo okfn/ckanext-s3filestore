@@ -17,7 +17,7 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
     else:
         plugins.implements(plugins.IRoutes, inherit=True)
 
-        # IConfigurer
+    # IConfigurer
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
