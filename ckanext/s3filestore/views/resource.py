@@ -89,7 +89,6 @@ def resource_download(package_type, id, resource_id, filename=None):
             return redirect(url)
 
         except ClientError as ex:
-            print(ex.response['Error']['Code'])
             if ex.response['Error']['Code'] == 'NoSuchKey' or '404':
                 # attempt fallback
                 if ckan_config.get(
