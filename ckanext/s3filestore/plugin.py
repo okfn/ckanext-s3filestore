@@ -3,8 +3,7 @@ import ckan.plugins as plugins
 import ckantoolkit as toolkit
 
 import ckanext.s3filestore.uploader
-import ckanext.s3filestore.views.resource as rs_view
-import ckanext.s3filestore.views.statics as st_view
+from ckanext.s3filestore.views import resource, uploads
 
 
 class S3FileStorePlugin(plugins.SingletonPlugin):
@@ -86,5 +85,6 @@ class S3FileStorePlugin(plugins.SingletonPlugin):
     # Ignored on CKAN < 2.8
 
     def get_blueprint(self):
-        blueprints = rs_view.get_blueprints() + st_view.get_blueprints()
+        blueprints = resource.get_blueprints() +\
+                     uploads.get_blueprints()
         return blueprints
