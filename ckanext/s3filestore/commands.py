@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import boto
 from ckantoolkit import config
@@ -21,7 +22,7 @@ class TestConnection(toolkit.CkanCommand):
     def command(self):
         self._load_config()
         if not self.args:
-            print self.usage
+            print(self.usage)
         elif self.args[0] == 'check-config':
             self.check_config()
 
@@ -31,13 +32,13 @@ class TestConnection(toolkit.CkanCommand):
                     'ckanext.s3filestore.aws_secret_access_key',
                     'ckanext.s3filestore.aws_bucket_name'):
             if not config.get(key):
-                print 'You must set the "{0}" option in your ini file'.format(
-                    key)
+                print('You must set the "{0}" option in your ini file'.format(
+                    key))
                 exit = True
         if exit:
             sys.exit(1)
 
-        print 'All configuration options defined'
+        print('All configuration options defined')
         bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
         public_key = config.get('ckanext.s3filestore.aws_access_key_id')
         secret_key = config.get('ckanext.s3filestore.aws_secret_access_key')
@@ -47,12 +48,12 @@ class TestConnection(toolkit.CkanCommand):
         # Check if bucket exists
         bucket = S3_conn.lookup(bucket_name)
         if bucket is None:
-            print 'Bucket {0} does not exist, trying to create it...'.format(
-                bucket_name)
+            print('Bucket {0} does not exist, trying to create it...'.format(
+                bucket_name))
             try:
                 bucket = S3_conn.create_bucket(bucket_name)
             except boto.exception.StandardError as e:
-                print 'An error was found while creating the bucket:'
-                print str(e)
+                print('An error was found while creating the bucket:')
+                print(str(e))
                 sys.exit(1)
-        print 'Configuration OK!'
+        print('Configuration OK!')
