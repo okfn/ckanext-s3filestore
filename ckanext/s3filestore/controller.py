@@ -71,7 +71,10 @@ class S3Controller(base.BaseController):
                                    region_name=region)
                 url = client.generate_presigned_url(ClientMethod='get_object',
                                                     Params={'Bucket': bucket.name,
-                                                            'Key': key_path},
+                                                            'Key': key_path,
+                                                            'ResponseContentDisposition':
+                                                                'attachment; filename=' + filename
+                                                            },
                                                     ExpiresIn=60)
                 redirect(url)
 

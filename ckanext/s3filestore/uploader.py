@@ -3,6 +3,7 @@ import cgi
 import logging
 import datetime
 import mimetypes
+import magic
 
 import boto3
 import botocore
@@ -120,11 +121,10 @@ class BaseS3Uploader(object):
                               config=botocore.client.Config(signature_version=self.signature,
                                                             s3={'addressing_style': self.addressing_style}))
         try:
-
             s3.Object(self.bucket_name, filepath).put(
                 Body=upload_file.read(), ACL='public-read' if make_public else self.acl,
                 ContentType=getattr(self, 'mimetype', '') or 'text/plain')
-            log.info("Succesfully uploaded {0} to S3!".format(filepath))
+            log.info("Successfully uploaded {0} to S3!".format(filepath))
         except Exception as e:
             log.error('Something went very very wrong for {0}'.format(str(e)))
             raise e
@@ -254,19 +254,30 @@ class S3ResourceUploader(BaseS3Uploader):
         upload_field_storage = resource.pop('upload', None)
         self.clear = resource.pop('clear_upload', None)
 
+        mime = magic.Magic(mime=True)
+
         if isinstance(upload_field_storage, ALLOWED_UPLOAD_TYPES):
             self.filename = upload_field_storage.filename
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
+            self.upload_file = _get_underlying_file(upload_field_storage)
             self.mimetype = resource.get('mimetype')
+
             if not self.mimetype:
                 try:
-                    self.mimetype = resource['mimetype'] = mimetypes.guess_type(self.filename, strict=False)[0]
+                    self.mimetype = resource['mimetype'] = mime.from_buffer(self.upload_file.read())
+
+                    # additional check on text/plain mimetypes for
+                    # more reliable result, if None continue with text/plain
+                    if self.mimetype == 'text/plain':
+                        self.mimetype = resource['mimetype'] = \
+                            mimetypes.guess_type(self.filename, strict=False)[0] or 'text/plain'
+
                 except Exception:
                     pass
-            self.upload_file = _get_underlying_file(upload_field_storage)
+
         elif self.clear and resource.get('id'):
             # New, not yet created resources can be marked for deletion if the
             # users cancels an upload and enters a URL instead.
