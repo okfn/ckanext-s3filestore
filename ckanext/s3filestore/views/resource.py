@@ -83,7 +83,9 @@ def resource_download(package_type, id, resource_id, filename=None):
 
             url = client.generate_presigned_url(ClientMethod='get_object',
                                                 Params={'Bucket': bucket.name,
-                                                        'Key': key_path},
+                                                        'Key': key_path,
+                                                        'ResponseContentDisposition':
+                                                            'attachment; filename=' + filename},
                                                 ExpiresIn=60)
 
             return redirect(url)
