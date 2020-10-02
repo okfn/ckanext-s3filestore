@@ -262,6 +262,7 @@ class S3ResourceUploader(BaseS3Uploader):
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
+            resource['format'] = self.filename.split('.').pop()
             self.upload_file = _get_underlying_file(upload_field_storage)
             self.mimetype = resource.get('mimetype')
 
