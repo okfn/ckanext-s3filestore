@@ -262,7 +262,13 @@ class S3ResourceUploader(BaseS3Uploader):
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             resource['last_modified'] = datetime.datetime.utcnow()
-            resource['format'] = self.filename.split('.').pop()
+
+            # Check the resource format from its filename extension,
+            # if no extension use the default CKAN implementation
+            resource_format = os.path.splitext(self.filename)[1][1:]
+            if resource_format:
+                resource['format'] = resource_format
+
             self.upload_file = _get_underlying_file(upload_field_storage)
             self.mimetype = resource.get('mimetype')
 
