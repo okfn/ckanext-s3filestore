@@ -1,5 +1,6 @@
 import os
 import pytest
+import six
 
 from ckantoolkit import config
 
@@ -41,19 +42,39 @@ class TestS3ControllerResourceDownload(object):
 
         assert resource_show['url'] == expected_url
 
-    # @mock_s3
-    # def test_resource_download_s3(self):
-    #     '''A resource uploaded to S3 can be downloaded.'''
-    #
-    #     resource, demo, app = self._upload_resource()
-    #     resource_show = demo.action.resource_show(id=resource['id'])
-    #     resource_file_url = resource_show['url']
-    #
-    #     file_response = app.get(resource_file_url)
-    #
-    #     assert_equal(file_response.content_type, 'text/csv')
-    #     assert_true('date,price' in file_response.body)
-    #
+    @mock_s3
+    def test_resource_download_s3(self, app):
+        '''A resource uploaded to S3 can be downloaded.'''
+
+        user = factories.User()
+        dataset = factories.Dataset()
+        env = {"REMOTE_USER": six.ensure_str(user["name"])}
+
+        response = app.post(
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
+            data={
+                "id": "",
+                "url": "http://test.com/",
+                "save": "go-dataset-complete"
+            }
+        )
+
+        result = helpers.call_action("package_show", id=dataset["id"])
+
+        response = app.get(
+            url_for(
+                "{}_resource.download".format(dataset["type"]),
+                id=dataset["id"],
+                resource_id=result["resources"][0]["id"],
+            ),
+            extra_environ=env,
+            follow_redirects=False
+        )
+        assert 302 == response.status_code
+
     # @mock_s3
     # def test_resource_download_s3_no_filename(self):
     #     '''A resource uploaded to S3 can be downloaded when no filename in
