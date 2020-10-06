@@ -5,8 +5,7 @@
 [![Build Status](https://travis-ci.com/keitaroinc/ckanext-s3filestore.svg?branch=fix-tests-travis)](https://travis-ci.com/keitaroinc/ckanext-s3filestore)
 
 
-.. image:: https://coveralls.io/repos/okfn/ckanext-s3filestore/badge.svg
-  :target: https://coveralls.io/r/okfn/ckanext-s3filestore
+[![Coverage Status](https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=master)](https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=master)
 
 
 ===================
