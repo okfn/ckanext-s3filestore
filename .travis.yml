@@ -37,22 +37,12 @@ jobs:
           - redis
           - docker
 
-    - python: "3.6"
+    - python: "3.7"
       env: CKANVERSION=2.9
       services:
           - postgresql
           - redis
           - docker
-
-    - python: "2.7"
-      env: CKANVERSION=2.8
-      addons:
-        postgresql: '11'
-        apt:
-          sources:
-            - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main'
-          packages:
-            - postgresql-11
 
 cache:
   directories:
