@@ -7,7 +7,8 @@
 
 
 .. image:: https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=master
-:target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=master
+     :target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=master
+
 
 
 ===================
