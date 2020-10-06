@@ -17,19 +17,6 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures('clean_db', 'with_plugins', 'with_request_context')
 class TestS3ControllerResourceDownload(object):
 
-    # def _upload_resource(self):
-    #     factories.Sysadmin(apikey="my-test-key")
-    #
-    #     app = self._get_test_app()
-    #     demo = ckanapi.TestAppCKAN(app, apikey='my-test-key')
-    #     factories.Dataset(name="my-dataset")
-    #
-    #     file_path = os.path.join(os.path.dirname(__file__), 'data.csv')
-    #     resource = demo.action.resource_create(package_id='my-dataset',
-    #                                            upload=open(file_path),
-    #                                            url='file.txt')
-    #     return resource, demo, app
-
     @mock_s3
     @pytest.mark.ckan_config('ckan.site_url', 'http://mytest.ckan.net')
     def test_resource_show_url(self, app):
@@ -50,8 +37,7 @@ class TestS3ControllerResourceDownload(object):
         # does resource_show have the expected resource file url?
         resource_show = helpers.call_action("resource_show", id=id)
 
-        expected_url = 'http://mytest.ckan.net/dataset/{0}/resource/{1}/download/data.csv' \
-            .format(result['package_id'], id)
+        expected_url = "http://data"
 
         assert resource_show['url'] == expected_url
 
