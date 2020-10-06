@@ -6,7 +6,7 @@
     :target: https://travis-ci.com/keitaroinc/ckanext-s3filestore
 
 
-.. image:: https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=master
+.. image:: https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=fix-tests-travis
      :target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=master
 
 
