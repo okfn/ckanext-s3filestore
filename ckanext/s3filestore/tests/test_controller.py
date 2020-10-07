@@ -6,6 +6,7 @@ from ckantoolkit import config
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+from ckan.lib.helpers import url_for
 
 import ckanapi
 import boto
