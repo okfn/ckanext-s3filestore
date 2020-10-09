@@ -9,15 +9,15 @@ import boto3
 import botocore
 import ckantoolkit as toolkit
 
-
 import ckan.model as model
 import ckan.lib.munge as munge
 
 if toolkit.check_ckan_version(min_version='2.7.0'):
     from werkzeug.datastructures import FileStorage as FlaskFileStorage
+
     ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
 else:
-    ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage)
+    ALLOWED_UPLOAD_TYPES = cgi.FieldStorage
 
 config = toolkit.config
 log = logging.getLogger(__name__)
@@ -60,34 +60,24 @@ class BaseS3Uploader(object):
                                      aws_secret_access_key=self.s_key,
                                      region_name=self.region)
 
+    def get_s3_resource_obj(self):
+        return self.get_s3_session().resource('s3',
+                                              endpoint_url=self.host_name,
+                                              config=botocore.client.Config(
+                                                  signature_version=self.signature,
+                                                  s3={'addressing_style': self.addressing_style}
+                                              ))
+
     def get_s3_bucket(self, bucket_name):
         '''Return a boto bucket, creating it if it doesn't exist.'''
 
         # make s3 connection using boto3
+        s3 = self.get_s3_resource_obj()
 
-        s3 = self.get_s3_session().resource('s3',
-                                            endpoint_url=self.host_name,
-                                            config=botocore.client.Config(
-                                                signature_version=self.signature,
-                                                s3={'addressing_style': self.addressing_style}
-                                            ))
         bucket = s3.Bucket(bucket_name)
         try:
-            if s3.Bucket(bucket.name) in s3.buckets.all():
-                log.info('Bucket {0} found!'.format(bucket_name))
-
-            else:
-                log.warning(
-                    'Bucket {0} could not be found,\
-                    attempting to create it...'.format(bucket_name))
-                try:
-                    bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
-                        'LocationConstraint': 'us-east-1'})
-                    log.info(
-                        'Bucket {0} succesfully created'.format(bucket_name))
-                except botocore.exceptions.ClientError as e:
-                    log.warning('Could not create bucket {0}: {1}'.format(
-                        bucket_name, str(e)))
+            s3.meta.client.head_bucket(Bucket=bucket_name)
+            log.info('Bucket {0} found!'.format(bucket_name))
         except botocore.exceptions.ClientError as e:
             error_code = int(e.response['Error']['Code'])
             if error_code == 404:
@@ -97,7 +87,7 @@ class BaseS3Uploader(object):
                     bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={
                         'LocationConstraint': self.region})
                     log.info(
-                        'Bucket {0} succesfully created'.format(bucket_name))
+                        'Bucket {0} successfully created'.format(bucket_name))
                 except botocore.exceptions.ClientError as e:
                     log.warning('Could not create bucket {0}: {1}'.format(
                         bucket_name, str(e)))
@@ -112,14 +102,11 @@ class BaseS3Uploader(object):
 
     def upload_to_key(self, filepath, upload_file, make_public=False):
         '''Uploads the `upload_file` to `filepath` on `self.bucket`.'''
+
         upload_file.seek(0)
 
-        session = boto3.session.Session(aws_access_key_id=self.p_key,
-                                        aws_secret_access_key=self.s_key,
-                                        region_name=self.region)
-        s3 = session.resource('s3', endpoint_url=self.host_name,
-                              config=botocore.client.Config(signature_version=self.signature,
-                                                            s3={'addressing_style': self.addressing_style}))
+        s3 = self.get_s3_resource_obj()
+
         try:
             s3.Object(self.bucket_name, filepath).put(
                 Body=upload_file.read(), ACL='public-read' if make_public else self.acl,
@@ -131,13 +118,9 @@ class BaseS3Uploader(object):
 
     def clear_key(self, filepath):
         '''Deletes the contents of the key at `filepath` on `self.bucket`.'''
-        session = boto3.session.Session(aws_access_key_id=self.p_key,
-                                        aws_secret_access_key=self.s_key,
-                                        region_name=self.region)
-        s3 = session.resource('s3', endpoint_url=self.host_name,
-                              config=botocore.client.Config(
-                                  signature_version=self.signature,
-                                  s3={'addressing_style': self.addressing_style}))
+
+        s3 = self.get_s3_resource_obj()
+
         try:
             s3.Object(self.bucket_name, filepath).delete()
         except Exception as e:
@@ -145,7 +128,6 @@ class BaseS3Uploader(object):
 
 
 class S3Uploader(BaseS3Uploader):
-
     '''
     An uploader class to replace local file storage with Amazon Web Services
     S3 for general files (e.g. Group cover images).
@@ -230,7 +212,6 @@ class S3Uploader(BaseS3Uploader):
 
 
 class S3ResourceUploader(BaseS3Uploader):
-
     '''
     An uploader class to replace local file storage with Amazon Web Services
     S3 for resource files.
