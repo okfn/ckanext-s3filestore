@@ -1,10 +1,10 @@
-os: linux
-dist: focal
 language: python
+sudo: required
 
 services:
-    - docker
+    - postgresql
     - redis
+    - docker
 
 install: bash bin/travis-build.bash
 script: bash bin/travis-run.bash
