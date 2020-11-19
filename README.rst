@@ -7,7 +7,7 @@
 
 
 .. image:: https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=fix-tests-travis
-     :target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=master
+     :target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=fix-tests-travis
 
 
 
