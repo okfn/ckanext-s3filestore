@@ -45,6 +45,9 @@ cd -
 echo "Setting up Solr..."
 docker run --name ckan-solr -p 8983:8983 -d openknowledge/ckan-solr-dev:$CKANVERSION
 
+# TODO set up minio
+echo "Setting up Minio..."
+
 echo "Setting up Postgres..."
 export PG_VERSION="$(pg_lsclusters | grep online | awk '{print $1}')"
 export PG_PORT="$(pg_lsclusters | grep online | awk '{print $3}')"
