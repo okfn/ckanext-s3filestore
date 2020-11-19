@@ -53,7 +53,7 @@ def resource(ckan_config, create_with_upload):
             NAZKO,1C08,1070,2016/01/05,20,31,,76,16,JAN-01,41
             """
     resource = create_with_upload(
-        content, u'test.csv', url=u'http://data',
+        content, u'test.csv',
         package_id=factories.Dataset()[u"id"]
     )
     return resource

@@ -48,9 +48,11 @@ class TestS3ResourceUpload(object):
     def test_uploader_get_path(self):
         u'''Uploader get_path returns as expected'''
         dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset['id'])
+        resource = factories.Resource(package_id=dataset['id'],
+                                      name=u'myfile.txt')
 
         uploader = S3ResourceUploader(resource)
-        returned_path = uploader.get_path(resource[u'id'], u'myfile.txt')
-        assert returned_path == u'resources/{0}/myfile.txt'.format(resource[u'id'])
+        returned_path = uploader.get_path(resource[u'id'], resource[u'name'])
+        assert returned_path == u'resources/{0}/{1}'.format(resource[u'id'],
+                                                            resource[u'name'])
 
