@@ -49,11 +49,6 @@ class TestS3ResourceUpload(object):
                                                  s3={u'addressing_style': addressing_style}),
                                    region_name=region)
 
-    @classmethod
-    def teardown_class(cls):
-        bucket = cls.resource_obj.Bucket(cls.bucket_name)
-        bucket.object_versions.delete()
-
     def test_resource_upload(self, ckan_config, create_with_upload):
         u'''Test a basic resource file upload'''
 

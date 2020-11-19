@@ -45,8 +45,8 @@ cd -
 echo "Setting up Solr..."
 docker run --name ckan-solr -p 8983:8983 -d openknowledge/ckan-solr-dev:$CKANVERSION
 
-# TODO set up minio
 echo "Setting up Minio..."
+docker run -it --rm --name minio --publish 9000:9000 --env MINIO_ACCESS_KEY="test-access-key" --env MINIO_SECRET_KEY="test-secret-key" --env MINIO_REGION_NAME='us-east-1' --env MINIO_DEFAULT_BUCKETS='test-bucket' bitnami/minio:latest
 
 echo "Setting up Postgres..."
 export PG_VERSION="$(pg_lsclusters | grep online | awk '{print $1}')"
