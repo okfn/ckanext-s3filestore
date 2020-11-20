@@ -43,7 +43,7 @@ def s3_client(ckan_config, s3_session):
 
 
 @pytest.fixture
-def resource(ckan_config, create_with_upload):
+def resource_with_upload(create_with_upload):
     content = u"""
             Snow Course Name, Number, Elev. metres, Date of Survey, Snow Depth cm,\
             Water Equiv. mm, Survey Code, % of Normal, Density %, Survey Period, \
@@ -57,3 +57,19 @@ def resource(ckan_config, create_with_upload):
         package_id=factories.Dataset()[u"id"]
     )
     return resource
+
+
+@pytest.fixture
+def organization_with_image(create_with_upload):
+    user = factories.Sysadmin()
+    context = {
+        u"user": user["name"]
+    }
+    org = create_with_upload(
+        b"\0\0\0", u"image.png",
+        context=context,
+        action=u"organization_create",
+        upload_field_name=u"image_upload",
+        name=u"test-org"
+    )
+    return org
