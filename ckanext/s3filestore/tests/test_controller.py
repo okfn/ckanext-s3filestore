@@ -6,7 +6,6 @@ import pytest
 
 from ckantoolkit import config
 import ckan.tests.factories as factories
-import ckan.tests.helpers as helpers
 from ckan.lib.helpers import url_for
 
 
@@ -54,7 +53,7 @@ class TestS3Controller(object):
         assert 302 == response.status_code
 
     def test_s3_download_link(self, app, s3_client, resource_with_upload):
-        u'''A resource download test.'''
+        u'''A resource download from s3 test.'''
 
         user = factories.Sysadmin()
         env = {u'REMOTE_USER': six.ensure_str(user[u'name'])}
@@ -74,6 +73,23 @@ class TestS3Controller(object):
         assert u'Snow Course Name, Number, Elev. metres,' in downloaded_file.text
 
     def test_s3_resource_mimetype(self, resource_with_upload):
-        u'''A resource download test.'''
+        u'''A resource mimetype test.'''
 
         assert u'text/csv' == resource_with_upload[u'mimetype']
+
+    def test_organization_image_redirects_to_s3(self, app, organization_with_image):
+        url = u'/uploads/group/{0}'.format(organization_with_image[u'image_url'])
+        response = app.get(url,
+                           follow_redirects=False)
+        assert 302 == response.status_code
+
+    def test_organization_image_download_from_s3(self, app, organization_with_image):
+        url = u'/uploads/group/{0}'.format(organization_with_image[u'image_url'])
+        response = app.get(url,
+                           follow_redirects=False)
+        assert 302 == response.status_code
+        assert response.location
+        image = requests.get(response.location)
+        assert image.content == b"\0\0\0"
+
+

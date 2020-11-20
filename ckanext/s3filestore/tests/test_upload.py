@@ -39,9 +39,9 @@ class TestS3ResourceUpload(object):
         assert s3_client.head_object(Bucket=self.bucket_name, Key=key)
 
         context = {u'user': factories.Sysadmin()[u'name']}
-        logic.get_action(u'resource_update')(context,
-                                             {u'clear_upload': True,
-                                              u'id': resource_with_upload[u'id']})
+        helpers.call_action(u'resource_update', context,
+                            clear_upload=True,
+                            id=resource_with_upload[u'id'])
 
         # key shouldn't exist, this raises ClientError
         with pytest.raises(ClientError) as e:
@@ -49,7 +49,7 @@ class TestS3ResourceUpload(object):
 
         assert e.value.response[u'Error'][u'Code'] == u'404'
 
-    def test_uploader_get_path(self):
+    def test_resource_uploader_get_path(self):
         u'''Uploader get_path returns as expected'''
         dataset = factories.Dataset()
         resource = factories.Resource(package_id=dataset['id'],
@@ -59,6 +59,10 @@ class TestS3ResourceUpload(object):
         returned_path = uploader.get_path(resource[u'id'], resource[u'name'])
         assert returned_path == u'resources/{0}/{1}'.format(resource[u'id'],
                                                             resource[u'name'])
+
+    def test_uploader_get_path(self):
+        storage_path = S3Uploader.get_storage_path(u'group')
+        assert 'storage/uploads/group' == storage_path
 
     def test_create_organization_with_image(self, s3_client,
                                             organization_with_image, ckan_config):
