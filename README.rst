@@ -2,12 +2,15 @@
    these badges work. The necessary Travis and Coverage config files have been
    generated for you.
 
-.. image:: https://travis-ci.com/keitaroinc/ckanext-s3filestore.svg?branch=fix-tests-travis
+.. image:: https://travis-ci.com/keitaroinc/ckanext-s3filestore.svg?branch=master
     :target: https://travis-ci.com/keitaroinc/ckanext-s3filestore
 
 
-.. image:: https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=fix-tests-travis
-     :target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=fix-tests-travis
+.. image:: https://coveralls.io/repos/github/keitaroinc/ckanext-s3filestore/badge.svg?branch=master
+     :target: https://coveralls.io/github/keitaroinc/ckanext-s3filestore?branch=master
+
+.. image:: https://img.shields.io/badge/python-3.8-blue.svg
+    :target: https://www.python.org/downloads/release/python-384/
 
 
 

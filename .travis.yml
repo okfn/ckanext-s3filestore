@@ -40,7 +40,7 @@ jobs:
           - redis
           - docker
 
-    - python: "3.7"
+    - python: "3.8"
       env: CKANVERSION=2.9
       services:
           - postgresql
