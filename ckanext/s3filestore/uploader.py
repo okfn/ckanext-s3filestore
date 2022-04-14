@@ -131,7 +131,7 @@ class BaseS3Uploader(object):
         try:
             s3.Object(self.bucket_name, filepath).delete()
         except Exception as e:
-            raise e
+            log.error('Could not delete the object in bucket{0}'.format(str(e)))
 
 
 class S3Uploader(BaseS3Uploader):
