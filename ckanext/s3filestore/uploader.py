@@ -115,7 +115,7 @@ class BaseS3Uploader(object):
         try:
             s3.Object(self.bucket_name, filepath).put(
                 Body=upload_file.read(), ACL='public-read',
-                ContentType=getattr(self, 'mimetype', None))
+                ContentType=getattr(self, 'mimetype', ''))
             log.info("Succesfully uploaded {0} to S3!".format(filepath))
         except Exception as e:
             log.error('Something went very very wrong for {0}'.format(str(e)))
@@ -131,7 +131,7 @@ class BaseS3Uploader(object):
         try:
             s3.Object(self.bucket_name, filepath).delete()
         except Exception as e:
-            raise e
+            log.error('Could not delete the object in bucket{0}'.format(str(e)))
 
 
 class S3Uploader(BaseS3Uploader):
@@ -189,6 +189,7 @@ class S3Uploader(BaseS3Uploader):
             self.filename = self.upload_field_storage.filename
             self.filename = str(datetime.datetime.utcnow()) + self.filename
             self.filename = munge.munge_filename_legacy(self.filename)
+            self.mimetype = mimetypes.guess_type(self.filename, strict=False)[0]
             self.filepath = os.path.join(self.storage_path, self.filename)
             data_dict[url_field] = self.filename
             self.upload_file = _get_underlying_file(self.upload_field_storage)
@@ -256,6 +257,7 @@ class S3ResourceUploader(BaseS3Uploader):
                     self.mimetype = resource['mimetype'] = mimetypes.guess_type(self.filename, strict=False)[0]
                 except Exception:
                     pass
+            if not self.mimetype: self.mimetype = ''
             self.upload_file = _get_underlying_file(upload_field_storage)
         elif self.clear and resource.get('id'):
             # New, not yet created resources can be marked for deletion if the
